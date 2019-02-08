@@ -1,4 +1,4 @@
 package model;
 
-public class BlocoControle {
+public class BlocoControle extends Bloco {
 }

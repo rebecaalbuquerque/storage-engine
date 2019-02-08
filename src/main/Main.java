@@ -1,4 +1,5 @@
-import java.io.FileNotFoundException;
+package main;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -7,10 +8,7 @@ public class Main {
     private static final String FILE_PATH = "/Users/Rebeca/Documents/BD2/forn-tpch.txt";
 
     public static void main(String[] args) {
-        readFile();
-    }
 
-    private static void readFile(){
         try {
 
             RandomAccessFile raf = new RandomAccessFile(FILE_PATH, "r");
@@ -20,13 +18,10 @@ public class Main {
                 System.out.println(line);
             }
 
-        } catch (FileNotFoundException e) {
-
-            e.printStackTrace();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 }
