@@ -2,7 +2,7 @@ package enums;
 
 public enum TipoBloco {
 
-    TIPO1(1);
+    TIPO_1(1);
 
     public int valor;
 
