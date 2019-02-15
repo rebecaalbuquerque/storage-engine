@@ -1,13 +1,11 @@
 package model;
 
 import java.nio.ByteBuffer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static enums.StatusContainer.STATUS_1;
+import static enums.StatusContainer.STATUS_0;
 import static utils.Constantes.TAMANHO_BLOCO;
-import static utils.ConversorUtils.*;
-import static utils.RegexExpressions.APENAS_NUMERO;
+import static utils.ConversorUtils.intToArrayByte;
+import static utils.ConversorUtils.stringsToBytes;
 
 public class BlocoControle extends Bloco {
 
@@ -18,25 +16,18 @@ public class BlocoControle extends Bloco {
     private byte[] dadosHeader;
 
     public BlocoControle(String[] arrayHeaders, int idArquivo){
-        int tamanhoTotalHeader = 0;
-        Pattern p = Pattern.compile(APENAS_NUMERO);
-        Matcher m;
 
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setTamanhoBloco(intToArrayByte(TAMANHO_BLOCO, 3));
-        setStatusArquivo(intToArrayByte(STATUS_1.valor, 1)[0]);
+        setStatusArquivo(intToArrayByte(STATUS_0.valor, 1)[0]);
 
-        for (String item : arrayHeaders) {
-            m = p.matcher(item);
+        byte[] dados = stringsToBytes(arrayHeaders);
+        dadosHeader = new byte[dados.length];
 
-            if(m.find())
-                tamanhoTotalHeader += Integer.parseInt(m.group());
-        }
+        setTamanhoHeader(intToArrayByte(dados.length, 2));
+        atualizarProximoBloco(intToArrayByte(11 + dados.length, 4));
 
-        setProximoBloco(intToArrayByte(10+tamanhoTotalHeader, 4));
-        this.dadosHeader = new byte[tamanhoTotalHeader];
-        setTamanhoHeader(intToArrayByte(tamanhoTotalHeader, 2));
-        setDadosHeader(stringsToBytes(arrayHeaders));
+        setDadosHeader(dados);
 
     }
 
@@ -73,7 +64,7 @@ public class BlocoControle extends Bloco {
 
     public void setStatusArquivo(byte statusArquivo) { this.statusArquivo = statusArquivo; }
 
-    public void setProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
+    public void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
 
     public void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
 }

@@ -1,7 +1,7 @@
 package enums;
 
 public enum StatusContainer {
-    STATUS_1(1);
+    STATUS_0(0);
 
     public int valor;
 
