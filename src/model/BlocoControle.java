@@ -3,7 +3,7 @@ package model;
 import java.nio.ByteBuffer;
 
 import static enums.StatusContainer.STATUS_0;
-import static utils.Constantes.TAMANHO_BLOCO;
+import static utils.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.ConversorUtils.intToArrayByte;
 import static utils.ConversorUtils.stringsToBytes;
 
@@ -15,7 +15,7 @@ public class BlocoControle extends Bloco {
     private byte[] tamanhoHeader = new byte[2];
     private byte[] dadosHeader;
 
-    public BlocoControle(String[] arrayHeaders, int idArquivo){
+    public BlocoControle(int idArquivo, String[] arrayHeaders){
 
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setTamanhoBloco(intToArrayByte(TAMANHO_BLOCO, 3));

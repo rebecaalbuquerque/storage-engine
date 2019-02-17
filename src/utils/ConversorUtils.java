@@ -1,5 +1,6 @@
 package utils;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,41 @@ public class ConversorUtils {
         }
 
         return result;
+    }
+
+    /**
+     * Transforma uma string em um array de bytes.
+     *
+     * @param valor variável que irá resultar no array de bytes
+     * @return array de bytes
+     * */
+    public static byte[] stringToBytes(String valor){
+        return valor.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Dado uma lista em que os elementos são um array de bytes, esse método concatena todos esses elementos e coloca
+     * em um array.
+     * @param arrayBytes lista que contem os arrays
+     * @return um array com todos os elementos concatenados
+     * */
+    public static byte[] concatenarArrays(ArrayList<byte[]> arrayBytes){
+        int tamanho = 0;
+        byte[] result;
+
+        for (byte[] array : arrayBytes) {
+            tamanho += array.length;
+        }
+
+        result = new byte[tamanho];
+        ByteBuffer target = ByteBuffer.wrap(result);
+
+        for (byte[] array : arrayBytes) {
+            target.put(array);
+        }
+
+        return result;
+
     }
 
 }
