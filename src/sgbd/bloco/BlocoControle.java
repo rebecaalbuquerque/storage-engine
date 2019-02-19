@@ -1,9 +1,10 @@
-package model;
+package sgbd.bloco;
 
 import java.nio.ByteBuffer;
 
 import static enums.StatusContainer.STATUS_0;
-import static utils.ConstantesSGBD.TAMANHO_BLOCO;
+import static utils.BlocoUtils.formatarArrayHeaders;
+import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.ConversorUtils.intToArrayByte;
 import static utils.ConversorUtils.stringsToBytes;
 
@@ -17,11 +18,13 @@ public class BlocoControle extends Bloco {
 
     public BlocoControle(int idArquivo, String[] arrayHeaders){
 
+        String[] arrayFormatado = formatarArrayHeaders(arrayHeaders);
+
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setTamanhoBloco(intToArrayByte(TAMANHO_BLOCO, 3));
         setStatusArquivo(intToArrayByte(STATUS_0.valor, 1)[0]);
 
-        byte[] dados = stringsToBytes(arrayHeaders);
+        byte[] dados = stringsToBytes(arrayFormatado);
         dadosHeader = new byte[dados.length];
 
         setTamanhoHeader(intToArrayByte(dados.length, 2));

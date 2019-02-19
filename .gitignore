@@ -7,6 +7,10 @@
 .idea/dictionaries
 .idea/libraries
 .idea/caches
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/uiDesigner.xml
 
 # Compiled class file
 *.class
@@ -31,3 +35,7 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Saidas e Entradas
+entrada/
+saida/

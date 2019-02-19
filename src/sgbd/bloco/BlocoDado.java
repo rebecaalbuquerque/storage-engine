@@ -1,15 +1,15 @@
-package model;
+package sgbd.bloco;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import static enums.TipoBloco.TIPO_1;
-import static utils.ConstantesRegex.ONLY_NUMBERS;
-import static utils.ConstantesSGBD.TAMANHO_BLOCO;
+import static constants.ConstantesRegex.APENAS_NUMERO;
+import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.ConversorUtils.*;
 
-// TODO: Colocar lógica para quando os dados a serem inseridos não forem maiories que o tamanho do bloco,
-//  sendo necessário colocar em outro bloco
+// TODO: Colocar lógica para quando os dados a serem inseridos não forem maiories que o tamanho do sgbd.bloco,
+//  sendo necessário colocar em outro sgbd.bloco
 
 public class BlocoDado extends Bloco {
 
@@ -18,13 +18,13 @@ public class BlocoDado extends Bloco {
     private byte[] idBloco = new byte[3];
     private byte tipo;
     private byte[] tamanhoTupla = new byte[2];
-    private byte[] ultimoEnderecoTupla = new byte[2]; // endereço do ultimo byte da diretorioTupla usado no bloco
+    private byte[] ultimoEnderecoTupla = new byte[2]; // endereço do ultimo byte da diretorioTupla usado no sgbd.bloco
     private byte[] diretorioTupla;
 
     public BlocoDado(int idArquivo, String[] dados) {
         contador += 1;
 
-        /* Header do bloco */
+        /* Header do sgbd.bloco */
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setIdBloco(intToArrayByte(contador, 3));
         setTipo(intToArrayByte(TIPO_1.valor, 1)[0]);
@@ -35,7 +35,7 @@ public class BlocoDado extends Bloco {
 
         for (String dado : dados) {
 
-            if (Pattern.matches(ONLY_NUMBERS, dado)) {
+            if (Pattern.matches(APENAS_NUMERO, dado)) {
 
                 listaDados.add(colunaIntParaBytes(dado));
 

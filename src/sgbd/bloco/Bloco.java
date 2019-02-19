@@ -1,4 +1,4 @@
-package model;
+package sgbd.bloco;
 
 abstract class Bloco {
     private byte idArquivo;

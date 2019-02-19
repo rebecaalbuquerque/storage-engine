@@ -1,26 +1,51 @@
 package main;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import sgbd.GerenciadorArquivos;
+
+import java.util.Scanner;
 
 public class Main {
 
-    private static final String FILE_PATH = "/Users/Rebeca/Documents/BD2/forn-tpch.txt";
-
     public static void main(String[] args) {
 
-        try {
+        GerenciadorArquivos ga = new GerenciadorArquivos();
 
-            RandomAccessFile raf = new RandomAccessFile(FILE_PATH, "r");
-            String line;
+        Scanner scanner = new Scanner(System.in);
+        int opcao;
+        System.out.println("[1]\t Criar arquivo/tabela");
+        System.out.println("[2]\t Ler sgbd.bloco");
+        System.out.println("[3]\t Gravar sgbd.bloco (existente)");
+        System.out.println("[4]\t Criar novo sgbd.bloco");
+        System.out.println("[5]\t Excluir sgbd.bloco");
 
-            while ( (line = raf.readLine()) != null ) {
-                System.out.println(line);
+        do{
+
+            System.out.print("\nEscolha uma opção: ");
+            opcao = scanner.nextInt();
+            System.out.println();
+
+            switch (opcao) {
+                case 1:
+                    System.out.println("opção 1");
+                    break;
+                case 2:
+                    System.out.println("opção 2");
+                    break;
+                case 3:
+                    System.out.println("opção 3");
+                    break;
+                case 4:
+                    System.out.println("opção 4");
+                    break;
+                case 5:
+                    System.out.println("opção 5");
+                    break;
+                default:
+                    System.out.println("Opção inválida");
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } while ( opcao < 1 || opcao > 5 );
+
 
     }
 

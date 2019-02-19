@@ -1,18 +1,23 @@
 package main;
 
-import model.BlocoControle;
-import model.BlocoDado;
+import sgbd.GerenciadorArquivos;
+import sgbd.bloco.BlocoControle;
+import sgbd.bloco.BlocoDado;
 
 import java.util.Arrays;
 
 public class Teste {
 
     public static void main(String[] args) {
-        System.out.println("Testando bloco de controle");
+        System.out.println("Testando sgbd.bloco de controle");
         testarBlocoControle();
 
-        System.out.println("Testando bloco de dados");
+        System.out.println("Testando sgbd.bloco de dados");
         testarBlocoDados();
+
+        GerenciadorArquivos ga = new GerenciadorArquivos();
+        ga.criarTabela();
+
     }
 
    private static void testarBlocoDados(){
@@ -28,5 +33,7 @@ public class Teste {
         System.out.println(bloco.getInformacoesCompletas().length);
         System.out.println(Arrays.toString(bloco.getInformacoesCompletas()));
     }
+
+
 
 }
