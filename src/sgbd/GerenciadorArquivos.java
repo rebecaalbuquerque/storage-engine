@@ -31,13 +31,15 @@ public class GerenciadorArquivos {
             reader = new FileReader(path);
             buffer = new BufferedReader(reader);
 
-            /* LENDO O ARQUIVO ENTRADA E TRANSFORMANDO EM BLOCOS (CONTROLE E DADOS) */
+            /* LENDO O ARQUIVO ENTRADA E TRANS3,
+            FORMANDO EM BLOCOS (CONTROLE E DADOS) */
             String linha = buffer.readLine();
             controle = new BlocoControle(containerId, linha.split(SEPARADOR_COLUNA));
             controle.getInformacoesCompletas();
 
             while ((linha = buffer.readLine()) != null ){
                 if(!linha.isEmpty()){
+                    System.out.println(linha);
                     BlocoDado dado = new BlocoDado(containerId, linha.split(SEPARADOR_COLUNA));
                     dados.add(dado);
                 }
