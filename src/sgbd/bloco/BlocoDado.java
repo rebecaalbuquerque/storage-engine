@@ -24,7 +24,7 @@ public class BlocoDado extends Bloco {
     public BlocoDado(int idArquivo, String[] dados) {
         contador += 1;
 
-        /* Header do sgbd.bloco */
+        /* Header do bloco */
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setIdBloco(intToArrayByte(contador, 3));
         setTipo(intToArrayByte(TIPO_1.valor, 1)[0]);
