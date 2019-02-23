@@ -39,7 +39,7 @@ public class GerenciadorArquivos {
             while ((linha = buffer.readLine()) != null ){
                 if(!linha.isEmpty()){
                     System.out.println(linha);
-                    BlocoDado dado = new BlocoDado(containerId, linha.split(SEPARADOR_COLUNA));
+                    BlocoDado dado = new BlocoDado(containerId, linha);
                     dados.add(dado);
                 }
 

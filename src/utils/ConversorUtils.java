@@ -104,4 +104,13 @@ public class ConversorUtils {
 
     }
 
+    public static int getIntFromBytes(byte[] array){
+        return ByteBuffer.wrap(array).getInt();
+    }
+
+    public static int getShotFromBytes(byte[] array){
+        return ByteBuffer.wrap(array).getShort();
+    }
+
+
 }
