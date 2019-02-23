@@ -2,13 +2,17 @@ package sgbd;
 
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
+import utils.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import static constants.ConstantesRegex.SEPARADOR_COLUNA;
-import static utils.DiretorioUtils.*;
+
+import static utils.BlocoUtils.temEspacoParaNovaTupla;
+import static utils.DiretorioUtils.getDiretorioEntrada;
+import static utils.DiretorioUtils.getQuantidadeArquivosSaida;
 import static utils.RAFUtils.escreverArquivo;
 
 public class GerenciadorArquivos {
@@ -17,36 +21,46 @@ public class GerenciadorArquivos {
 
     public void criarTabela(){
         int containerId = getQuantidadeArquivosSaida() + 1;
-        BlocoControle controle = null;
+        BlocoControle controle;
+
         ArrayList<BlocoDado> dados = new ArrayList<>();
 
-        String path = getDiretorioEntrada() + "\\teste.txt";
-        String saida = getDiretorioSaida() + "\\saida_teste.txt";
-        File arquivo_saida = new File(saida);
+        String path = getDiretorioEntrada() + "\\teste2.txt";
+        File saida = FileUtils.criarArquivo(containerId);
 
-        FileReader reader = null;
-        BufferedReader buffer = null;
+        FileReader reader;
+        BufferedReader buffer;
 
+        // Lendo arquivo teste.txt que contem a tabela a ser lida
         try {
             reader = new FileReader(path);
             buffer = new BufferedReader(reader);
 
-            /* LENDO O ARQUIVO ENTRADA E TRANSFORMANDO EM BLOCOS (CONTROLE E DADOS) */
+            // Bloco de Controle
             String linha = buffer.readLine();
-            controle = new BlocoControle(containerId, linha.split(SEPARADOR_COLUNA));
+            controle = new BlocoControle(containerId, linha);
             controle.getInformacoesCompletas();
 
+            escreverArquivo(saida, controle.getDadosHeader(), 0);
+
+            // Blocos de Dados
             while ((linha = buffer.readLine()) != null ){
                 if(!linha.isEmpty()){
+
                     System.out.println(linha);
-                    BlocoDado dado = new BlocoDado(containerId, linha);
-                    dados.add(dado);
+                    BlocoDado dado = new BlocoDado(containerId);
+
+                    if(temEspacoParaNovaTupla(dado.getTamanhoTuplasDisponivel(), linha)){
+                        dado.adicionarNovaTupla(linha);
+
+                    }
+
                 }
 
             }
 
             /* SAIDA */
-            escreverArquivo(arquivo_saida, controle.getDadosHeader(), 0);
+            //escreverArquivo(arquivo_saida, controle.getDadosHeader(), 0);
 
             buffer.close();
         } catch (IOException e) {

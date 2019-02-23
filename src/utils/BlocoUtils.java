@@ -1,14 +1,18 @@
 package utils;
 
-import static constants.ConstantesRegex.CARACTER_ESPECIAL;
-import static utils.ConversorUtils.intToArrayByte;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
+import static constants.ConstantesRegex.*;
+import static utils.ConversorUtils.*;
 
 public class BlocoUtils {
 
     /**
      * Método para colocar o separador de colunas "|" em um byte
      * */
-    public static String[] formatarArrayHeaders(String[] arrayHeaders){
+    public static String[] formatarArrayHeaders(String headers){
+        String[] arrayHeaders = headers.split(SEPARADOR_COLUNA);
         String[] result = new String[arrayHeaders.length + (arrayHeaders.length - 1)];
 
         for (int i = 0; i < result.length; i++) {
@@ -30,34 +34,56 @@ public class BlocoUtils {
         return result;
     }
 
+    public static byte[] getTuplaFormatada(String linha){
+        ArrayList<byte[]> listaColunas = new ArrayList<>();
+
+        for (String dado : linha.split(SEPARADOR_COLUNA)) {
+
+            if (Pattern.matches(APENAS_NUMERO, dado))
+                listaColunas.add(getColunaIntFormatada(dado));
+            else
+                listaColunas.add(getColunaStringFormatada(dado));
+
+        }
+
+        byte[] tamanho = intToArrayByte(concatenarArrays(listaColunas).length, 3);
+
+        listaColunas.add(0, tamanho);
+
+        return concatenarArrays(listaColunas);
+    }
+
+    private static byte[] getColunaIntFormatada(String dado) {
+        byte[] tamanhoColuna = intToArrayByte(4, 2);
+        byte[] dadosColuna = intToArrayByte(Integer.parseInt(dado), 4);
+
+        return concatenarArrays(
+                new ArrayList<byte[]>() {{
+                    add(tamanhoColuna);
+                    add(dadosColuna);
+                }}
+        );
+    }
+
     /**
-     * Esse método adiciona a nova tupla no final do array e adiciona as informações do tuple directory no inicio do array
-     * @param tamanhoTuplasDisponivel serve como index auxiliar ao adicionar nova tupla no array de tuplas
-     * @param tamanhoTuplaDirectory serve como index auxiliar ao adicionar as informações do tuple directory no array
-     * @param novaTupla tupla a ser adicionada
-     * @param tuplas array onde será colocada as informações do tuple directory e a nova tupla
+     * Transforma os dados em array de byte e retorna outro array de bytes que é a concatenação do tamanho dos dados em array e os dados em array, ou seja,
+     * array[ array[tamanhoDados] + array[dados] ]
      * */
-    public static byte[] inserirNovaTupla(int tamanhoTuplasDisponivel, int tamanhoTuplaDirectory, byte[] novaTupla, byte[] tuplas){
-        int indexTuplas = 0;
-        int indexTuplaDirectory = 0;
+    private static byte[] getColunaStringFormatada(String dado) {
+        byte[] dadosColuna = stringToBytes(dado);
+        byte[] tamanhoColuna = intToArrayByte(dadosColuna.length, 2);
 
-        byte[] tuplaDirectory = intToArrayByte(tamanhoTuplasDisponivel, 2);
+        return concatenarArrays(
+                new ArrayList<byte[]>() {{
+                    add(tamanhoColuna);
+                    add(dadosColuna);
+                }}
+        );
 
-        // Inserindo na parte do Tupla Directory o index de inicio da nova tupla
-        for (int i = tamanhoTuplaDirectory - 2; i < tamanhoTuplaDirectory; i++) {
-            tuplas[i] = tuplaDirectory[indexTuplaDirectory];
-            indexTuplaDirectory++;
-        }
+    }
 
-        // Inserindo os dados na nova tupla na parte das tuplas
-        for (int i = tamanhoTuplasDisponivel; i < (tamanhoTuplasDisponivel + novaTupla.length); i++) {
-
-            tuplas[i] = novaTupla[indexTuplas];
-            indexTuplas++;
-
-        }
-
-        return tuplas;
+    public static boolean temEspacoParaNovaTupla(int tamanhoDisponivel, String novaTupla){
+        return getTuplaFormatada(novaTupla).length < tamanhoDisponivel;
     }
 
 }

@@ -108,7 +108,7 @@ public class ConversorUtils {
         return ByteBuffer.wrap(array).getInt();
     }
 
-    public static int getShotFromBytes(byte[] array){
+    public static int getShortFromBytes(byte[] array){
         return ByteBuffer.wrap(array).getShort();
     }
 

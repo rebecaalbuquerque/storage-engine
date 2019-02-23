@@ -16,9 +16,9 @@ public class BlocoControle extends Bloco {
     private byte[] tamanhoHeader = new byte[2];
     private byte[] dadosHeader;
 
-    public BlocoControle(int idArquivo, String[] arrayHeaders){
+    public BlocoControle(int idArquivo, String headers){
 
-        String[] arrayFormatado = formatarArrayHeaders(arrayHeaders);
+        String[] arrayFormatado = formatarArrayHeaders(headers);
 
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setTamanhoBloco(intToArrayByte(TAMANHO_BLOCO, 3));
