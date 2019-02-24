@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.TipoBloco.TIPO_1;
+import static utils.BlocoUtils.getIndexesTuplas;
 import static utils.BlocoUtils.getTuplaFormatada;
 import static utils.ConversorUtils.*;
 
@@ -83,16 +84,87 @@ public class BlocoDado extends Bloco {
     }
 
     public byte[] getTuplas(){
-        // array de bytes sem a informação do tamanho da tupla
-        int ultimoByteTupla = getShortFromBytes((getUltimoEnderecoTupla());
+        int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
+        ArrayList<byte[]> tuplas = new ArrayList<>();
+        int tamanhoColuna = 0;
+        int countColuna = 0;
 
 
+        for (int index: indexesTuplas) {
+            byte[] tamanhoTupla = new byte[4];
+            int countTamanhoTupla = 0;
 
-        return null;
+            // Descobrindo tamanho da tupla
+            for (int i = index; i < index + 4; i++) {
+                tamanhoTupla[countTamanhoTupla] = this.dados[i];
+                countTamanhoTupla++;
+            }
 
+            tuplas.add(
+                    getTuplaReduzidaFormatada(index, getIntFromBytes(tamanhoTupla))
+            );
+
+        }
+
+        return concatenarArrays(tuplas);
+    }
+
+    private byte[] getTuplaReduzidaFormatada(int inicio, int tamanhoCompletoTupla){
+        byte[] tupla = new byte[tamanhoCompletoTupla];
+        byte[] result;
+
+        // Começa a ler ignorando os 4 primeiros bytes, referentes ao tamanho da tupla
+        int quantidadeColunas = 0;
+        int countTamanhoTupla = 0;
+        int countElementosAdd = 0;
+        int countColuna = 0;
+
+        for (int i = inicio + 4; i < tamanhoCompletoTupla + inicio + 4; i++){
+            boolean isAdd = false;
+            byte[] tamanhoColunaBytes = new byte[2];
+
+            tamanhoColunaBytes[countColuna] = this.dados[i];
+            countColuna++;
+
+            if(countColuna == 2){
+                quantidadeColunas++;
+                countColuna = 0;
+                isAdd = true;
+            }
+
+            if(isAdd){
+                tamanhoColunaBytes = new byte[2];
+                tupla[countTamanhoTupla] = this.dados[i];
+                countTamanhoTupla++;
+                countElementosAdd++;
+
+                if(countElementosAdd == getShortFromBytes(tamanhoColunaBytes)){
+                    isAdd = false;
+                    countElementosAdd = 0;
+                }
+            }
+
+        }
+
+        result = new byte[quantidadeColunas];
+
+        System.arraycopy(tupla, 0, result, 0, tupla.length - result.length);
+
+        return result;
     }
 
     /* Getters e Setters */
+
+    private byte[] getTuplaDirectory(){
+        byte[] tuplaDirectory = new byte[ getShortFromBytes(getTamanhoTuplaDirectory()) ];
+
+        for (int i = 0; i < tuplaDirectory.length; i++) {
+            tuplaDirectory[i] = this.dados[i];
+        }
+
+        return tuplaDirectory;
+
+    }
 
     public int getTamanhoTuplasDisponivel() { return tamanhoTuplasDisponivel; }
 

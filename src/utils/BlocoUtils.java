@@ -86,4 +86,25 @@ public class BlocoUtils {
         return getTuplaFormatada(novaTupla).length < tamanhoDisponivel;
     }
 
+    public static int[] getIndexesTuplas(byte[] tupleDirectory){
+        ArrayList<Integer> indexes = new ArrayList<>();
+        byte[] directory = new byte[2];
+        int count = 0;
+
+        for (byte b : tupleDirectory) {
+            directory[count] = b;
+            count++;
+
+            if (count == 2) {
+                indexes.add(getShortFromBytes(directory) - 9);
+                directory = new byte[2];
+                count = 0;
+            }
+
+        }
+
+        return indexes.stream().mapToInt(i -> i).toArray();
+
+    }
+
 }
