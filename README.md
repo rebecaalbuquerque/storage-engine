@@ -15,10 +15,10 @@ Os dados de um bloco de controle são salvos em bytes da seguinte forma: COLAI6|
 ### 3) Bloco de dados
 As tuplas são inseridas em um array de dados que representa o conteúdo do Tuple Directory e as Tuplas.
 
-###3.1) Bloco de dados com apenas uma tupla
+#### 3.1) Bloco de dados com apenas uma tupla
 Adicionando a tupla:  505|REBECA ALBUQUERQUE|
 ![bloco dados ex 1](https://user-images.githubusercontent.com/41158713/53306262-99871880-3869-11e9-97d5-68ffacea7af9.jpg)
 
-###3.2) Bloco de dados com mais de uma tupla
+#### 3.2) Bloco de dados com mais de uma tupla
 Adicionando as tuplas:  5|RE| e 6|BR|
 ![bloco dados ex 2](https://user-images.githubusercontent.com/41158713/53306263-99871880-3869-11e9-8099-4f9ecc8c21bb.jpg)
