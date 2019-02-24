@@ -2,6 +2,7 @@ package sgbd.bloco;
 
 import java.util.ArrayList;
 
+import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.TipoBloco.TIPO_1;
 import static utils.BlocoUtils.getIndexesTuplas;
@@ -86,9 +87,7 @@ public class BlocoDado extends Bloco {
     public byte[] getTuplas(){
         int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
         ArrayList<byte[]> tuplas = new ArrayList<>();
-        int tamanhoColuna = 0;
-        int countColuna = 0;
-
+        ArrayList<byte[]> tuplasComSeparador = new ArrayList<>();
 
         for (int index: indexesTuplas) {
             byte[] tamanhoTupla = new byte[4];
@@ -106,7 +105,12 @@ public class BlocoDado extends Bloco {
 
         }
 
-        return concatenarArrays(tuplas);
+        for (byte[] tupla : tuplas) {
+            tuplasComSeparador.add(tupla);
+            tuplasComSeparador.add(SEPARADOR_COLUNA_EM_BYTES);
+        }
+
+        return concatenarArrays(tuplasComSeparador);
     }
 
     private byte[] getTuplaReduzidaFormatada(int inicio, int tamanhoCompletoTupla){
@@ -118,22 +122,12 @@ public class BlocoDado extends Bloco {
         int countTamanhoTupla = 0;
         int countElementosAdd = 0;
         int countColuna = 0;
+        boolean isAdd = false;
+        byte[] tamanhoColunaBytes = new byte[2];
 
         for (int i = inicio + 4; i < tamanhoCompletoTupla + inicio + 4; i++){
-            boolean isAdd = false;
-            byte[] tamanhoColunaBytes = new byte[2];
-
-            tamanhoColunaBytes[countColuna] = this.dados[i];
-            countColuna++;
-
-            if(countColuna == 2){
-                quantidadeColunas++;
-                countColuna = 0;
-                isAdd = true;
-            }
 
             if(isAdd){
-                tamanhoColunaBytes = new byte[2];
                 tupla[countTamanhoTupla] = this.dados[i];
                 countTamanhoTupla++;
                 countElementosAdd++;
@@ -141,14 +135,25 @@ public class BlocoDado extends Bloco {
                 if(countElementosAdd == getShortFromBytes(tamanhoColunaBytes)){
                     isAdd = false;
                     countElementosAdd = 0;
+                    tamanhoColunaBytes = new byte[2];
+                }
+            } else {
+                tamanhoColunaBytes[countColuna] = this.dados[i];
+                countColuna++;
+
+                if (countColuna == 2) {
+                    quantidadeColunas++;
+                    countColuna = 0;
+                    isAdd = true;
                 }
             }
 
+
         }
 
-        result = new byte[quantidadeColunas];
+        result = new byte[tamanhoCompletoTupla - (quantidadeColunas * 2)];
 
-        System.arraycopy(tupla, 0, result, 0, tupla.length - result.length);
+        System.arraycopy(tupla, 0, result, 0, result.length);
 
         return result;
     }
@@ -158,9 +163,8 @@ public class BlocoDado extends Bloco {
     private byte[] getTuplaDirectory(){
         byte[] tuplaDirectory = new byte[ getShortFromBytes(getTamanhoTuplaDirectory()) ];
 
-        for (int i = 0; i < tuplaDirectory.length; i++) {
-            tuplaDirectory[i] = this.dados[i];
-        }
+        if (tuplaDirectory.length >= 0)
+            System.arraycopy(this.dados, 0, tuplaDirectory, 0, tuplaDirectory.length);
 
         return tuplaDirectory;
 

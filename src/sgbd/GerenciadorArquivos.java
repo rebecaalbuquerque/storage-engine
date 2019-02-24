@@ -41,26 +41,27 @@ public class GerenciadorArquivos {
             controle = new BlocoControle(containerId, linha);
             controle.getInformacoesCompletas();
 
-            escreverArquivo(saida, controle.getDadosHeader(), 0);
+            //escreverArquivo(saida, controle.getDadosHeader(), 0);
 
             // Blocos de Dados
+            BlocoDado dado = new BlocoDado(containerId);
+
             while ((linha = buffer.readLine()) != null ){
                 if(!linha.isEmpty()){
 
                     System.out.println(linha);
-                    BlocoDado dado = new BlocoDado(containerId);
-
                     if(temEspacoParaNovaTupla(dado.getTamanhoTuplasDisponivel(), linha)){
                         dado.adicionarNovaTupla(linha);
-
                     }
+
 
                 }
 
             }
 
             /* SAIDA */
-            //escreverArquivo(arquivo_saida, controle.getDadosHeader(), 0);
+            escreverArquivo(saida, dado.getTuplas(), 0);
+
 
             buffer.close();
         } catch (IOException e) {
