@@ -21,6 +21,7 @@ public class GerenciadorArquivos {
 
     public void criarTabela(){
         int containerId = getQuantidadeArquivosSaida() + 1;
+        int offset = 0;
         BlocoControle controle;
 
         ArrayList<BlocoDado> dados = new ArrayList<>();
@@ -39,9 +40,9 @@ public class GerenciadorArquivos {
             // Bloco de Controle
             String linha = buffer.readLine();
             controle = new BlocoControle(containerId, linha);
-            controle.getInformacoesCompletas();
+            offset = controle.getInformacoesCompletas().length;
 
-            //escreverArquivo(saida, controle.getDadosHeader(), 0);
+            escreverArquivo(saida, controle.getDadosHeader(), 0);
 
             // Blocos de Dados
             BlocoDado dado = new BlocoDado(containerId);
@@ -60,7 +61,7 @@ public class GerenciadorArquivos {
             }
 
             /* SAIDA */
-            escreverArquivo(saida, dado.getTuplas(), 0);
+            escreverArquivo(saida, dado.getTuplas(), offset);
 
 
             buffer.close();
