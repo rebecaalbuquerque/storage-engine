@@ -25,6 +25,7 @@
             <properties>
               <foreground color="-12828863"/>
               <selectionForeground color="-12828863"/>
+              <selectionMode value="0"/>
             </properties>
           </component>
           <component id="2ba2e" class="javax.swing.JButton" binding="btnAbrirArquivo">
