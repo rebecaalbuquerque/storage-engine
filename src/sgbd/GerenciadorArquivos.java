@@ -17,51 +17,53 @@ import static utils.RAFUtils.escreverArquivo;
 
 public class GerenciadorArquivos {
 
-    public GerenciadorArquivos(){}
+    private int containerID;
+
+    public GerenciadorArquivos(){
+        containerID = getQuantidadeArquivosSaida() + 1;
+    }
 
     public void criarTabela(){
-        int containerId = getQuantidadeArquivosSaida() + 1;
-        int offset = 0;
-        BlocoControle controle;
-
+        int offset;
+        String linha;
+        String entradaPath = getDiretorioEntrada() + "\\teste2.txt";
+        File saida = FileUtils.criarArquivo(containerID);
         ArrayList<BlocoDado> dados = new ArrayList<>();
-
-        String path = getDiretorioEntrada() + "\\teste2.txt";
-        File saida = FileUtils.criarArquivo(containerId);
 
         FileReader reader;
         BufferedReader buffer;
 
         // Lendo arquivo teste.txt que contem a tabela a ser lida
         try {
-            reader = new FileReader(path);
+            reader = new FileReader(entradaPath);
             buffer = new BufferedReader(reader);
 
-            // Bloco de Controle
-            String linha = buffer.readLine();
-            controle = new BlocoControle(containerId, linha);
-            offset = controle.getInformacoesCompletas().length;
-
+            // Escrevendo Bloco de Controle
+            BlocoControle controle = new BlocoControle(containerID, buffer.readLine());
+            offset = controle.getDadosHeader().length;
             escreverArquivo(saida, controle.getDadosHeader(), 0);
 
-            // Blocos de Dados
-            BlocoDado dado = new BlocoDado(containerId);
+            BlocoDado blocoDadoAtual = new BlocoDado(getContainerID());
 
             while ((linha = buffer.readLine()) != null ){
-                if(!linha.isEmpty()){
 
-                    System.out.println(linha);
-                    if(temEspacoParaNovaTupla(dado.getTamanhoTuplasDisponivel(), linha)){
-                        dado.adicionarNovaTupla(linha);
-                    }
-
-
+                if(temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)){
+                    blocoDadoAtual.adicionarNovaTupla(linha);
+                    // TODO: setProximoBloco
+                    dados.add(blocoDadoAtual);
+                } else {
+                    blocoDadoAtual = new BlocoDado(getContainerID());
+                    blocoDadoAtual.adicionarNovaTupla(linha);
+                    dados.add(blocoDadoAtual);
                 }
 
             }
 
-            /* SAIDA */
-            escreverArquivo(saida, dado.getTuplas(), offset);
+            // Escrevendo Bloco de Dados
+            for (BlocoDado d : dados) {
+                escreverArquivo(saida, d.getTuplas(), offset);
+                offset += d.getTuplas().length;
+            }
 
 
             buffer.close();
@@ -70,6 +72,16 @@ public class GerenciadorArquivos {
         }
 
 
+    }
+
+    private int getContainerID(){
+        int result = containerID;
+        atualizarContainerID();
+        return result;
+    }
+
+    private void atualizarContainerID(){
+        this.containerID++;
     }
 
     static {

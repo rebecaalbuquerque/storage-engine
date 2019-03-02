@@ -13,7 +13,7 @@ public class BlocoUtils {
      * */
     public static String[] formatarArrayHeaders(String headers){
         String[] arrayHeaders = headers.split(SEPARADOR_COLUNA);
-        String[] result = new String[arrayHeaders.length + (arrayHeaders.length - 1)];
+        String[] result = new String[arrayHeaders.length * 2];
 
         for (int i = 0; i < result.length; i++) {
 
