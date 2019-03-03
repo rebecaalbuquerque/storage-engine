@@ -11,7 +11,7 @@ import static utils.ConversorUtils.*;
 
 public class BlocoDado extends Bloco {
 
-    private static int contador;
+    private static int contador = -1;
 
     /* Informações de um bloco de dados */
     private byte[] idBloco = new byte[3];
@@ -37,8 +37,20 @@ public class BlocoDado extends Bloco {
 
     }
 
-    /* Utilitários */
+    public BlocoDado(byte[] bloco){
+        setIdArquivo(bloco[0]);
+        setIdBloco(new byte[]{ bloco[1], bloco[2], bloco[3] });
+        setTipo(bloco[4]);
+        setTamanhoTuplaDirectory(new byte[]{ bloco[5], bloco[6]});
+        setUltimoEnderecoTupla(new byte[]{ bloco[7], bloco[8] });
 
+        this.dados = new byte[bloco.length - 9];
+
+        System.arraycopy(bloco, 9, this.dados, 0, this.dados.length);
+
+    }
+
+    /* Utilitários */
     public void adicionarNovaTupla(String novaTupla){
         inserirTupla(getTuplaFormatada(novaTupla));
     }
@@ -61,7 +73,7 @@ public class BlocoDado extends Bloco {
         int countIndexTuplaDirectory = 0;
 
         int ultimoEndereco = getShortFromBytes(getUltimoEnderecoTupla());
-        setUltimoEnderecoTupla(intToArrayByte(ultimoEndereco - novaTupla.length - 1, 2));
+        setUltimoEnderecoTupla(intToArrayByte(ultimoEndereco - novaTupla.length , 2));
 
         // Atualiza a quantidade de bytes disponível para novas tuplas serem adicionadas
         setTamanhoTuplasDisponivel( (tamanhoTuplasDisponivel - (novaTupla.length + 2) ) );
@@ -104,6 +116,8 @@ public class BlocoDado extends Bloco {
             );
 
         }
+
+        System.out.println("Total de tuplas do bloco " + getIntFrom3Bytes(getIdBloco()) + ": " + tuplas.size());
 
         for (byte[] tupla : tuplas) {
             tuplasComSeparador.add(tupla);
@@ -159,7 +173,6 @@ public class BlocoDado extends Bloco {
     }
 
     /* Getters e Setters */
-
     private byte[] getTuplaDirectory(){
         byte[] tuplaDirectory = new byte[ getShortFromBytes(getTamanhoTuplaDirectory()) ];
 
@@ -182,7 +195,7 @@ public class BlocoDado extends Bloco {
         this.dados = diretorioTupla;
     }
 
-    private byte[] getIdBloco() {
+    public byte[] getIdBloco() {
         return idBloco;
     }
 
@@ -198,17 +211,22 @@ public class BlocoDado extends Bloco {
         this.tipo = tipo;
     }
 
-    private byte[] getTamanhoTuplaDirectory() {
+    public byte[] getTamanhoTuplaDirectory() {
         return tamanhoTuplaDirectory;
     }
 
     private void setTamanhoTuplaDirectory(byte[] tamanhoTuplaDirectory) { this.tamanhoTuplaDirectory = tamanhoTuplaDirectory; }
 
-    private byte[] getUltimoEnderecoTupla() {
+    public byte[] getUltimoEnderecoTupla() {
         return ultimoEnderecoTupla;
     }
 
     private void setUltimoEnderecoTupla(byte[] ultimoEnderecoTupla) {
         this.ultimoEnderecoTupla = ultimoEnderecoTupla;
+    }
+
+    @Override
+    public String toString() {
+        return bytesToString(getTuplas());
     }
 }

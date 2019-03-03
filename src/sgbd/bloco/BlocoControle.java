@@ -2,6 +2,7 @@ package sgbd.bloco;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
@@ -29,10 +30,22 @@ public class BlocoControle extends Bloco {
         dadosHeader = new byte[dados.length];
 
         setTamanhoHeader(intToArrayByte(dados.length, 2));
-        atualizarProximoBloco(intToArrayByte(11 + dados.length, 4));
+        atualizarProximoBloco(intToArrayByte(0, 4));
 
         setDadosHeader(dados);
 
+    }
+
+    public BlocoControle(byte[] controle){
+        setIdArquivo(controle[0]);
+        setTamanhoBloco(new byte[]{ controle[1], controle[2], controle[3]  });
+        setStatusArquivo(controle[4]);
+        atualizarProximoBloco(new byte[]{ controle[5], controle[6], controle[7], controle[8]  });
+        setTamanhoHeader(new byte[]{ controle[9], controle[10] });
+
+        dadosHeader = new byte[(controle.length - 11)];
+
+        System.arraycopy(controle, 11, dadosHeader, 0, dadosHeader.length);
     }
 
     /* Utilitários */
@@ -125,6 +138,10 @@ public class BlocoControle extends Bloco {
         this.proximoBloco = proximoBloco;
     }
 
+    public void setProximoBloco(int proximoBloco) {
+        this.proximoBloco = intToArrayByte(proximoBloco, 4);
+    }
+
     public void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }
 
     public void setTamanhoBloco(byte[] tamanhoBloco) { this.tamanhoBloco = tamanhoBloco; }
@@ -134,4 +151,9 @@ public class BlocoControle extends Bloco {
     public void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
 
     public void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
+
+    @Override
+    public String toString() {
+        return bytesToString(getDadosHeader());
+    }
 }

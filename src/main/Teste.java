@@ -3,6 +3,7 @@ package main;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
@@ -19,7 +20,6 @@ public class Teste {
 
     }
 
-
     private static void testarBlocoDados(String linha) {
         BlocoDado bloco = new BlocoDado(0);
 
@@ -27,7 +27,6 @@ public class Teste {
             bloco.adicionarNovaTupla(linha);
             bloco.adicionarNovaTupla("6|BR|");
             System.out.println("Resultado: " + Arrays.toString(bloco.getInformacoesCompletas()));
-            System.out.println("Tupals: " + Arrays.toString(bloco.getTuplas()));
         }
 
 
@@ -37,8 +36,6 @@ public class Teste {
         BlocoControle bloco = new BlocoControle(0, header);
         System.out.println(bloco.getInformacoesCompletas().length);
         System.out.println(Arrays.toString(bloco.getInformacoesCompletas()));
-        System.out.println(Arrays.toString(bloco.getDadosHeader()));
-        System.out.println(Arrays.toString(bloco.getDadosHeaderFormatados()));
     }
 
 }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Objects;
 
 import static constants.ConstantesDiretorio.DIRETORIO_ENTRADA;
-import static constants.ConstantesDiretorio.DIRETORIO_SAIDA;
+import static constants.ConstantesDiretorio.DIRETORIO_SAIDA_TABELAS;
 
 public class DiretorioUtils {
 
@@ -19,8 +19,8 @@ public class DiretorioUtils {
     /**
      * Retorna a string do diretório que está localizando os arquivos de saida
      * */
-    public static String getDiretorioSaida(){
-        return System.getProperty("user.dir") + DIRETORIO_SAIDA;
+    public static String getDiretorioSaidaTabelas(){
+        return System.getProperty("user.dir") + DIRETORIO_SAIDA_TABELAS;
     }
 
     /**
@@ -33,8 +33,8 @@ public class DiretorioUtils {
     /**
      * Verificando quantos arquivos existem no diretório de saida
      * */
-    public static int getQuantidadeArquivosSaida(){
-        return Objects.requireNonNull(new File(DiretorioUtils.getDiretorioSaida()).list()).length;
+    public static int getQuantidadeArquivosSaidaTabelas(){
+        return Objects.requireNonNull(new File(DiretorioUtils.getDiretorioSaidaTabelas()).list()).length;
     }
 
 }
