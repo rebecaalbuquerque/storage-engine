@@ -12,21 +12,13 @@ public class BlocoUtils {
      * Método para colocar o separador de colunas "|" em um byte
      * */
     public static String[] formatarArrayHeaders(String headers){
-        String[] arrayHeaders = headers.split(SEPARADOR_COLUNA);
-        String[] result = new String[arrayHeaders.length + (arrayHeaders.length - 1)];
+        String arrayHeaders = headers.replaceAll(SEPARADOR_COLUNA, " | ");
+        String[] result = arrayHeaders.split(" ");
 
         for (int i = 0; i < result.length; i++) {
 
-            if(i % 2 == 0){
-
-                if(i > 0){
-                    result[i] = arrayHeaders[i-1].replaceAll(CARACTER_ESPECIAL, "");
-                } else {
-                    result[i] = arrayHeaders[i].replaceAll(CARACTER_ESPECIAL, "");
-                }
-
-            } else {
-                result[i] = "|";
+            if(result[i].length() > 1){
+                result[i] = result[i].replaceAll(CARACTER_ESPECIAL, "");
             }
 
         }
@@ -46,7 +38,7 @@ public class BlocoUtils {
 
         }
 
-        byte[] tamanho = intToArrayByte(concatenarArrays(listaColunas).length, 3);
+        byte[] tamanho = intToArrayByte(concatenarArrays(listaColunas).length, 4);
 
         listaColunas.add(0, tamanho);
 
@@ -83,9 +75,13 @@ public class BlocoUtils {
     }
 
     public static boolean temEspacoParaNovaTupla(int tamanhoDisponivel, String novaTupla){
-        return getTuplaFormatada(novaTupla).length < tamanhoDisponivel;
+        return (getTuplaFormatada(novaTupla).length + 2) < tamanhoDisponivel;
     }
 
+    /**
+     * Retorna o index de início de todas as tuplas que um bloco possui
+     * @param tupleDirectory estrutura de dados que possui informação dos indexes
+     * */
     public static int[] getIndexesTuplas(byte[] tupleDirectory){
         ArrayList<Integer> indexes = new ArrayList<>();
         byte[] directory = new byte[2];
@@ -105,6 +101,16 @@ public class BlocoUtils {
 
         return indexes.stream().mapToInt(i -> i).toArray();
 
+    }
+
+    /**
+     * Retorna o tipo e a quantidade máximo de uma coluna especifica
+     * */
+    public static String[] getInformacaoColuna(String coluna){
+        String nomeColuna = coluna.replaceAll(APENAS_NUMERO, "");
+        String quantidadeColuna = coluna.replaceAll(APENAS_LETRAS + "|(_)", "");
+
+        return new String[]{nomeColuna.substring(nomeColuna.length() - 1),  quantidadeColuna};
     }
 
 }

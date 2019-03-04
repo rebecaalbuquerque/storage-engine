@@ -108,8 +108,16 @@ public class ConversorUtils {
         return ByteBuffer.wrap(array).getInt();
     }
 
+    public static int getIntFrom3Bytes(byte[] array) {
+        return (array[0] & 255) << 16 | (array[1] & 255) << 8 | (array[2] & 255);
+    }
+
     public static int getShortFromBytes(byte[] array){
         return ByteBuffer.wrap(array).getShort();
+    }
+
+    public static String bytesToString(byte[] bytes){
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
 

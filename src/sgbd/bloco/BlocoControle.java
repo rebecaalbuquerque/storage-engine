@@ -1,12 +1,16 @@
 package sgbd.bloco;
 
-import java.nio.ByteBuffer;
+import utils.PrintUtils;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+
+import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
+import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.StatusContainer.STATUS_0;
 import static utils.BlocoUtils.formatarArrayHeaders;
-import static constants.ConstantesSGBD.TAMANHO_BLOCO;
-import static utils.ConversorUtils.intToArrayByte;
-import static utils.ConversorUtils.stringsToBytes;
+import static utils.BlocoUtils.getInformacaoColuna;
+import static utils.ConversorUtils.*;
 
 public class BlocoControle extends Bloco {
 
@@ -28,10 +32,22 @@ public class BlocoControle extends Bloco {
         dadosHeader = new byte[dados.length];
 
         setTamanhoHeader(intToArrayByte(dados.length, 2));
-        atualizarProximoBloco(intToArrayByte(11 + dados.length, 4));
+        atualizarProximoBloco(intToArrayByte(0, 4));
 
         setDadosHeader(dados);
 
+    }
+
+    public BlocoControle(byte[] controle){
+        setIdArquivo(controle[0]);
+        setTamanhoBloco(new byte[]{ controle[1], controle[2], controle[3]  });
+        setStatusArquivo(controle[4]);
+        atualizarProximoBloco(new byte[]{ controle[5], controle[6], controle[7], controle[8]  });
+        setTamanhoHeader(new byte[]{ controle[9], controle[10] });
+
+        dadosHeader = new byte[(controle.length - 11)];
+
+        System.arraycopy(controle, 11, dadosHeader, 0, dadosHeader.length);
     }
 
     /* Utilitários */
@@ -50,24 +66,109 @@ public class BlocoControle extends Bloco {
         return result;
     }
 
-    /* Getters e Setters */
-    public byte[] getTamanhoBloco() { return tamanhoBloco; }
+    ArrayList<String[]> getInformacoesColunas(){
+        String[] arrayHeaders = bytesToString(getDadosHeader()).split("\\|");
+        ArrayList<String[]> result = new ArrayList<>();
 
-    public byte getStatusArquivo() { return statusArquivo; }
+        for (String header : arrayHeaders) {
+            result.add(getInformacaoColuna(header));
+        }
+
+        return result;
+    }
+
+    /* Getters e Setters */
+    private byte[] getTamanhoBloco() { return tamanhoBloco; }
+
+    private byte getStatusArquivo() { return statusArquivo; }
 
     public byte[] getProximoBloco() { return proximoBloco; }
 
-    public byte[] getTamanhoHeader() { return tamanhoHeader; }
+    private byte[] getTamanhoHeader() { return tamanhoHeader; }
 
-    public byte[] getDadosHeader() { return dadosHeader; }
+    private byte[] getDadosHeader() { return dadosHeader; }
 
-    public void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }
+    public byte[] getDadosHeaderFormatados() {
+        ArrayList<byte[]> headers = new ArrayList<>();
+        ArrayList<Byte> header = new ArrayList<>();
+        int countQtdElementosColuna = 0;
 
-    public void setTamanhoBloco(byte[] tamanhoBloco) { this.tamanhoBloco = tamanhoBloco; }
+        for(int i = dadosHeader.length - 2; i >= 0; i--){
 
-    public void setStatusArquivo(byte statusArquivo) { this.statusArquivo = statusArquivo; }
+            if((dadosHeader[i] == stringToBytes("I")[0] || dadosHeader[i] == stringToBytes("A")[0]) && countQtdElementosColuna != -1){
+                header.add(header.size()-header.size(), stringToBytes("]")[0]);
+                header.add(header.size()-header.size(), stringToBytes(")")[0]);
 
-    public void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
+                for(int j = i + countQtdElementosColuna; j >= i + 1; j--)
+                    header.add(header.size()-header.size(), dadosHeader[j]);
 
-    public void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
+
+                header.add(header.size()-header.size(), stringToBytes("(")[0]);
+                header.add(header.size()-header.size(), dadosHeader[i]);
+                header.add(header.size()-header.size(), stringToBytes("[")[0]);
+
+                countQtdElementosColuna = -1;
+
+
+            } else if(dadosHeader[i] == SEPARADOR_COLUNA_EM_BYTES[0] || i == 0) {
+                header.add(SEPARADOR_COLUNA_EM_BYTES[0]);
+
+                if(!header.isEmpty()) {
+                    if(i == 0){
+                        header.add(header.size()-header.size(), dadosHeader[i]);
+                    }
+
+                    byte[] arr = new byte[header.size()];
+
+                    for (int j = 0; j < header.size(); j++) {
+                        arr[j] = header.get(j);
+                    }
+
+                    headers.add(arr);
+
+                    header.clear();
+
+                    countQtdElementosColuna = 0;
+
+                }
+
+            } else {
+
+                if(countQtdElementosColuna != -1)
+                    countQtdElementosColuna++;
+                else
+                    header.add(header.size() - header.size(), dadosHeader[i]);
+
+
+            }
+
+        }
+
+        return concatenarArrays(headers);
+    }
+
+    public void setProximoBloco(byte[] proximoBloco) {
+        this.proximoBloco = proximoBloco;
+    }
+
+    public void setProximoBloco(int proximoBloco) {
+        this.proximoBloco = intToArrayByte(proximoBloco, 4);
+    }
+
+    private void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }
+
+    private void setTamanhoBloco(byte[] tamanhoBloco) { this.tamanhoBloco = tamanhoBloco; }
+
+    private void setStatusArquivo(byte statusArquivo) { this.statusArquivo = statusArquivo; }
+
+    private void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
+
+    private void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
+
+    @Override
+    public String toString() {
+        PrintUtils.printLoadingInformation( "\nIniciando processo de leitura do Bloco de Controle...\n");
+        return bytesToString(getDadosHeader());
+
+    }
 }
