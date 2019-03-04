@@ -10,7 +10,7 @@ public class TesteFiles {
 
         GerenciadorArquivos ga = new GerenciadorArquivos();
         //ga.criarTabela(getDiretorioEntrada() + "\\forn-tpch.txt");
-        ga.lerTabela(3);
+        ga.lerTabela(2);
 
     }
 

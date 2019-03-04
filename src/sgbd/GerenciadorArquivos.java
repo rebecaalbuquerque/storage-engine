@@ -3,6 +3,7 @@ package sgbd;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 import utils.FileUtils;
+import utils.PrintUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -79,8 +80,6 @@ public class GerenciadorArquivos {
                 offset += blocoCompleto.length;
             }
 
-            System.out.println("~ Fim ~");
-
             buffer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,7 +91,7 @@ public class GerenciadorArquivos {
     public void lerTabela(int tabelaID){
 
         if(tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()){
-            System.out.println("A tabela" + tabelaID + ".txt não existe.");
+            PrintUtils.printError("A tabela" + tabelaID + ".txt não existe.");
         }
 
         File file = buscarArquivo(tabelaID);
@@ -101,16 +100,16 @@ public class GerenciadorArquivos {
         BlocoControle controle = carregarBlocoControle(file);
         ArrayList<BlocoDado> dados = carregarBlocosDados(file, controle.getInformacoesCompletas().length, getIntFromBytes(controle.getProximoBloco()) - 1);
 
-        System.out.println("Quantidade de Bloco de Dados: " + dados.size());
-        System.out.println(controle.toString());
+        PrintUtils.printAdditionaInformation("Quantidade de Bloco de Dados = " + dados.size());
+        PrintUtils.printResultData(controle.toString());
 
         for (BlocoDado d: dados) {
-            System.out.print(d.toString(controle));
+            PrintUtils.printResultData(d.toString(controle));
         }
     }
 
     private BlocoControle carregarBlocoControle(File file){
-        System.out.println("Carregando Bloco de Controle da " + file.getName() + "...");
+        PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
         byte[] dadosControle = lerBlocoControle(file);
 
         return new BlocoControle(dadosControle);
@@ -150,7 +149,7 @@ public class GerenciadorArquivos {
     }
 
     static {
-        System.out.println("Iniciando Gerenciador de Arquivos...\n");
+        PrintUtils.printLoadingInformation("Iniciando Gerenciador de Arquivos...\n");
     }
 
 }

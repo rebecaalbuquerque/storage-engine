@@ -1,14 +1,10 @@
 package main;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static constants.ConstantesRegex.APENAS_LETRAS;
-import static constants.ConstantesRegex.APENAS_NUMERO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
 
 public class Teste {

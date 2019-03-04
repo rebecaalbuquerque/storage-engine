@@ -1,5 +1,7 @@
 package sgbd.bloco;
 
+import utils.PrintUtils;
+
 import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
@@ -118,8 +120,6 @@ public class BlocoDado extends Bloco {
 
         }
 
-        System.out.println("Total de tuplas do bloco " + getIntFrom3Bytes(getIdBloco()) + ": " + tuplas.size());
-
         for (byte[] tupla : tuplas) {
             tuplasComSeparador.add(tupla);
             tuplasComSeparador.add(SEPARADOR_COLUNA_EM_BYTES);
@@ -148,7 +148,7 @@ public class BlocoDado extends Bloco {
 
         }
 
-        System.out.println("Total de tuplas do Bloco de Dados " + getIntFrom3Bytes(getIdBloco()) + " = " + tuplas.size() + "\n");
+        PrintUtils.printAdditionaInformation("Total de tuplas do Bloco de Dados " + getIntFrom3Bytes(getIdBloco()) + " = " + tuplas.size() + "\n");
         return tuplas;
     }
 
@@ -258,7 +258,7 @@ public class BlocoDado extends Bloco {
     }
 
     public String toString(BlocoControle controle) {
-        System.out.println("\nIniciando processo de leitura das tuplas do Bloco de Dados: " + getIntFrom3Bytes(getIdBloco()) + " ...");
+        PrintUtils.printLoadingInformation("Iniciando processo de leitura das tuplas do Bloco de Dados: " + getIntFrom3Bytes(getIdBloco()) + " ...");
 
         ArrayList<byte[]> tuplas = getListaTuplas();
         ArrayList<String[]> informacoesColunas = controle.getInformacoesColunas();

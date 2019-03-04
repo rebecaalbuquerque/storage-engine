@@ -1,8 +1,9 @@
 package sgbd.bloco;
 
+import utils.PrintUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
@@ -65,7 +66,7 @@ public class BlocoControle extends Bloco {
         return result;
     }
 
-    public ArrayList<String[]> getInformacoesColunas(){
+    ArrayList<String[]> getInformacoesColunas(){
         String[] arrayHeaders = bytesToString(getDadosHeader()).split("\\|");
         ArrayList<String[]> result = new ArrayList<>();
 
@@ -77,15 +78,15 @@ public class BlocoControle extends Bloco {
     }
 
     /* Getters e Setters */
-    public byte[] getTamanhoBloco() { return tamanhoBloco; }
+    private byte[] getTamanhoBloco() { return tamanhoBloco; }
 
-    public byte getStatusArquivo() { return statusArquivo; }
+    private byte getStatusArquivo() { return statusArquivo; }
 
     public byte[] getProximoBloco() { return proximoBloco; }
 
-    public byte[] getTamanhoHeader() { return tamanhoHeader; }
+    private byte[] getTamanhoHeader() { return tamanhoHeader; }
 
-    public byte[] getDadosHeader() { return dadosHeader; }
+    private byte[] getDadosHeader() { return dadosHeader; }
 
     public byte[] getDadosHeaderFormatados() {
         ArrayList<byte[]> headers = new ArrayList<>();
@@ -154,19 +155,19 @@ public class BlocoControle extends Bloco {
         this.proximoBloco = intToArrayByte(proximoBloco, 4);
     }
 
-    public void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }
+    private void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }
 
-    public void setTamanhoBloco(byte[] tamanhoBloco) { this.tamanhoBloco = tamanhoBloco; }
+    private void setTamanhoBloco(byte[] tamanhoBloco) { this.tamanhoBloco = tamanhoBloco; }
 
-    public void setStatusArquivo(byte statusArquivo) { this.statusArquivo = statusArquivo; }
+    private void setStatusArquivo(byte statusArquivo) { this.statusArquivo = statusArquivo; }
 
-    public void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
+    private void atualizarProximoBloco(byte[] proximoBloco) { this.proximoBloco = proximoBloco; }
 
-    public void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
+    private void setTamanhoHeader(byte[] tamanhoHeader) { this.tamanhoHeader = tamanhoHeader; }
 
     @Override
     public String toString() {
-        System.out.println("\nIniciando processo de leitura do Bloco de Controle...\n");
+        PrintUtils.printLoadingInformation( "\nIniciando processo de leitura do Bloco de Controle...\n");
         return bytesToString(getDadosHeader());
 
     }

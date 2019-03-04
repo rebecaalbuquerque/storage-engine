@@ -78,6 +78,10 @@ public class BlocoUtils {
         return (getTuplaFormatada(novaTupla).length + 2) < tamanhoDisponivel;
     }
 
+    /**
+     * Retorna o index de início de todas as tuplas que um bloco possui
+     * @param tupleDirectory estrutura de dados que possui informação dos indexes
+     * */
     public static int[] getIndexesTuplas(byte[] tupleDirectory){
         ArrayList<Integer> indexes = new ArrayList<>();
         byte[] directory = new byte[2];
@@ -99,6 +103,9 @@ public class BlocoUtils {
 
     }
 
+    /**
+     * Retorna o tipo e a quantidade máximo de uma coluna especifica
+     * */
     public static String[] getInformacaoColuna(String coluna){
         String nomeColuna = coluna.replaceAll(APENAS_NUMERO, "");
         String quantidadeColuna = coluna.replaceAll(APENAS_LETRAS + "|(_)", "");
