@@ -8,6 +8,7 @@ import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.StatusContainer.STATUS_0;
 import static utils.BlocoUtils.formatarArrayHeaders;
+import static utils.BlocoUtils.getInformacaoColuna;
 import static utils.ConversorUtils.*;
 
 public class BlocoControle extends Bloco {
@@ -60,6 +61,17 @@ public class BlocoControle extends Bloco {
         target.put(getProximoBloco());
         target.put(getTamanhoHeader());
         target.put(getDadosHeader());
+
+        return result;
+    }
+
+    public ArrayList<String[]> getInformacoesColunas(){
+        String[] arrayHeaders = bytesToString(getDadosHeader()).split("\\|");
+        ArrayList<String[]> result = new ArrayList<>();
+
+        for (String header : arrayHeaders) {
+            result.add(getInformacaoColuna(header));
+        }
 
         return result;
     }
@@ -154,6 +166,8 @@ public class BlocoControle extends Bloco {
 
     @Override
     public String toString() {
+        System.out.println("\nIniciando processo de leitura do Bloco de Controle...\n");
         return bytesToString(getDadosHeader());
+
     }
 }

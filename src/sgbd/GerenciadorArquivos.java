@@ -46,18 +46,18 @@ public class GerenciadorArquivos {
             // Criando primeiro Bloco de Dados
             BlocoDado blocoDadoAtual = new BlocoDado(getContainerID());
             dados.add(blocoDadoAtual);
-            System.out.println("Criando bloco " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+            System.out.println("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
 
             while ((linha = buffer.readLine()) != null ){
 
                 if(temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)){
-                    System.out.println("Adicionando nova tupla no bloco " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    System.out.println("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
 
                 } else {
                     blocoDadoAtual = new BlocoDado(getContainerID());
-                    System.out.println("Criando bloco " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
-                    System.out.println("Adicionando nova tupla no bloco " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    System.out.println("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    System.out.println("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
                     dados.add(blocoDadoAtual);
                     controle.setProximoBloco( getIntFrom3Bytes(blocoDadoAtual.getIdBloco()) + 1 );
@@ -72,7 +72,7 @@ public class GerenciadorArquivos {
             // Escrevendo Bloco de Dados
             for (BlocoDado d : dados) {
                 //System.out.println("containerID.blocoID = " + d.getContainerBlocoID());
-                System.out.println("BlocoID: " + getIntFrom3Bytes(d.getIdBloco()));
+                //System.out.println("BlocoID: " + getIntFrom3Bytes(d.getIdBloco()));
 
                 byte[] blocoCompleto = d.getInformacoesCompletas();
                 escreverArquivo(saida, blocoCompleto, offset);
@@ -80,7 +80,6 @@ public class GerenciadorArquivos {
             }
 
             System.out.println("~ Fim ~");
-
 
             buffer.close();
         } catch (IOException e) {
@@ -102,16 +101,16 @@ public class GerenciadorArquivos {
         BlocoControle controle = carregarBlocoControle(file);
         ArrayList<BlocoDado> dados = carregarBlocosDados(file, controle.getInformacoesCompletas().length, getIntFromBytes(controle.getProximoBloco()) - 1);
 
-        System.out.println("Quantidade blocos: " + dados.size());
+        System.out.println("Quantidade de Bloco de Dados: " + dados.size());
         System.out.println(controle.toString());
 
         for (BlocoDado d: dados) {
-            System.out.println(d.toString());
+            System.out.print(d.toString(controle));
         }
     }
 
     private BlocoControle carregarBlocoControle(File file){
-        System.out.println("Carregando Bloco de Controle da tabela " + file.getName());
+        System.out.println("Carregando Bloco de Controle da " + file.getName() + "...");
         byte[] dadosControle = lerBlocoControle(file);
 
         return new BlocoControle(dadosControle);

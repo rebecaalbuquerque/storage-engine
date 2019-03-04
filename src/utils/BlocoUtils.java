@@ -99,4 +99,11 @@ public class BlocoUtils {
 
     }
 
+    public static String[] getInformacaoColuna(String coluna){
+        String nomeColuna = coluna.replaceAll(APENAS_NUMERO, "");
+        String quantidadeColuna = coluna.replaceAll(APENAS_LETRAS + "|(_)", "");
+
+        return new String[]{nomeColuna.substring(nomeColuna.length() - 1),  quantidadeColuna};
+    }
+
 }

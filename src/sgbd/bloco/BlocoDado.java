@@ -9,6 +9,7 @@ import static utils.BlocoUtils.getIndexesTuplas;
 import static utils.BlocoUtils.getTuplaFormatada;
 import static utils.ConversorUtils.*;
 
+@SuppressWarnings("Duplicates")
 public class BlocoDado extends Bloco {
 
     private static int contador = -1;
@@ -127,6 +128,38 @@ public class BlocoDado extends Bloco {
         return concatenarArrays(tuplasComSeparador);
     }
 
+    private ArrayList<byte[]> getListaTuplas(){
+        int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
+        ArrayList<byte[]> tuplas = new ArrayList<>();
+
+        for (int index: indexesTuplas) {
+            byte[] tamanhoTupla = new byte[4];
+            int countTamanhoTupla = 0;
+
+            // Descobrindo tamanho da tupla
+            for (int i = index; i < index + 4; i++) {
+                tamanhoTupla[countTamanhoTupla] = this.dados[i];
+                countTamanhoTupla++;
+            }
+
+            tuplas.add(
+                    getTuplaCompleta(index, getIntFromBytes(tamanhoTupla))
+            );
+
+        }
+
+        System.out.println("Total de tuplas do Bloco de Dados " + getIntFrom3Bytes(getIdBloco()) + " = " + tuplas.size() + "\n");
+        return tuplas;
+    }
+
+    private byte[] getTuplaCompleta(int inicio, int tamanhoTupla){
+        byte[] result = new byte[tamanhoTupla];
+
+        System.arraycopy(this.dados, inicio + 4, result, 0, result.length);
+
+        return result;
+    }
+
     private byte[] getTuplaReduzidaFormatada(int inicio, int tamanhoCompletoTupla){
         byte[] tupla = new byte[tamanhoCompletoTupla];
         byte[] result;
@@ -161,7 +194,6 @@ public class BlocoDado extends Bloco {
                     isAdd = true;
                 }
             }
-
 
         }
 
@@ -225,8 +257,65 @@ public class BlocoDado extends Bloco {
         this.ultimoEnderecoTupla = ultimoEnderecoTupla;
     }
 
-    @Override
-    public String toString() {
-        return bytesToString(getTuplas());
+    public String toString(BlocoControle controle) {
+        System.out.println("\nIniciando processo de leitura das tuplas do Bloco de Dados: " + getIntFrom3Bytes(getIdBloco()) + " ...");
+
+        ArrayList<byte[]> tuplas = getListaTuplas();
+        ArrayList<String[]> informacoesColunas = controle.getInformacoesColunas();
+        ArrayList<String> tuplasString = new ArrayList<>();
+        String result = "";
+
+        for (byte[] tupla : tuplas) {
+            int numeroColuna = 0;
+            byte[] tamanhoColunaAtual = new byte[2];
+            byte[] dadosColunaAtual = new byte[0];
+            int countTamanhoColunaAtual = 0;
+            int countDadoColunaAtual = 0;
+            boolean isAddDados = false;
+            String linha = "";
+
+            for (int i = 0; i < tupla.length; i++) {
+
+                if(isAddDados){
+                    dadosColunaAtual[countDadoColunaAtual] = tupla[i];
+                    countDadoColunaAtual++;
+
+                    if(countDadoColunaAtual == getShortFromBytes(tamanhoColunaAtual)){
+                        // Aqui o array de dados já está cheio, falta descobrir se é "I" ou "A"
+                        isAddDados = false;
+                        countTamanhoColunaAtual= 0;
+
+                        String[] infoColuna = informacoesColunas.get(numeroColuna);
+                        numeroColuna++;
+
+                        if(infoColuna[0].equals("A")){
+                            linha += bytesToString(dadosColunaAtual) + "|";
+                        } else {
+                            linha += getIntFromBytes(dadosColunaAtual) + "|";
+                        }
+
+                    }
+
+                } else {
+                    tamanhoColunaAtual[countTamanhoColunaAtual] = tupla[i];
+                    countTamanhoColunaAtual++;
+                }
+
+                if(countTamanhoColunaAtual == 2){
+                    dadosColunaAtual = new byte[getShortFromBytes(tamanhoColunaAtual)];
+                    countDadoColunaAtual = 0;
+                    countTamanhoColunaAtual = -1;
+                    isAddDados = true;
+                }
+
+            }
+            tuplasString.add(linha);
+        }
+
+        for (String s : tuplasString) {
+            result += s + "\n";
+        }
+
+        return result;
     }
 }
