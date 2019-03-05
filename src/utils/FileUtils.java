@@ -16,7 +16,7 @@ public class FileUtils {
         try {
 
             if(file.createNewFile()){
-                System.out.println("Criando novo container: " + file.getName());
+                PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
             } else {
                 limparArquivo(file);
             }
