@@ -5,10 +5,7 @@ import sgbd.bloco.BlocoDado;
 import utils.FileUtils;
 import utils.PrintUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
@@ -17,26 +14,27 @@ import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
 import static utils.FileUtils.buscarArquivo;
+import static utils.FileUtils.criarArquivo;
 import static utils.RAFUtils.*;
 
 public class GerenciadorArquivos {
 
     private int containerID;
 
-    public GerenciadorArquivos(){
+    public GerenciadorArquivos() {
         containerID = getQuantidadeArquivosSaidaTabelas() + 1;
     }
 
-    public void criarTabela(String arquivoEntrada){
+    public void criarTabela(String arquivoEntrada) {
         int offset;
         String linha;
-        File saida = FileUtils.criarArquivo(containerID);
+        File saida = FileUtils.criarArquivo(containerID, false);
         ArrayList<BlocoDado> dados = new ArrayList<>();
 
         FileReader reader;
         BufferedReader buffer;
 
-        // Lendo arquivo teste.txt que contem a tabela a ser lida
+        // Lendo arquivo que contem a tabela a ser lida
         try {
             reader = new FileReader(arquivoEntrada);
             buffer = new BufferedReader(reader);
@@ -49,9 +47,9 @@ public class GerenciadorArquivos {
             dados.add(blocoDadoAtual);
             PrintUtils.printLoadingInformation("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
 
-            while ((linha = buffer.readLine()) != null ){
+            while ((linha = buffer.readLine()) != null) {
 
-                if(temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)){
+                if (temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)) {
                     PrintUtils.printAdditionaInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
 
@@ -61,7 +59,7 @@ public class GerenciadorArquivos {
                     PrintUtils.printAdditionaInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
                     dados.add(blocoDadoAtual);
-                    controle.setProximoBloco( getIntFrom3Bytes(blocoDadoAtual.getIdBloco()) + 1 );
+                    controle.setProximoBloco(getIntFrom3Bytes(blocoDadoAtual.getIdBloco()) + 1);
                 }
 
             }
@@ -88,9 +86,10 @@ public class GerenciadorArquivos {
 
     }
 
-    public void lerTabela(int tabelaID){
+    public void lerTabela(int tabelaID) {
+        ArrayList<String> rowIDs = new ArrayList<>();
 
-        if(tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()){
+        if (tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()) {
             PrintUtils.printError("A tabela" + tabelaID + ".txt não existe.");
         }
 
@@ -103,21 +102,62 @@ public class GerenciadorArquivos {
         PrintUtils.printAdditionaInformation("Quantidade de Bloco de Dados = " + dados.size());
         PrintUtils.printResultData(controle.toString());
 
-        for (BlocoDado d: dados) {
+        for (BlocoDado d : dados) {
             PrintUtils.printResultData(d.toString(controle));
+            // Fazer um método para retornar os RowIDs daquele bloco?
+
+
+            int idContainer = (int) d.getIdArquivo();
+            int idBloco = getIntFrom3Bytes(d.getIdBloco());
         }
     }
 
-    private BlocoControle carregarBlocoControle(File file){
+    private void gerarRowIDs(int idTabela, ArrayList<String> rowIDs) {
+        File file = criarArquivo(idTabela, true);
+
+        FileWriter fw = null;
+        BufferedWriter bw = null;
+
+        try {
+
+            if (file != null) {
+                fw = new FileWriter(file);
+                bw = new BufferedWriter(fw);
+
+                for (String rowID : rowIDs) {
+                    bw.write(rowID);
+                    bw.newLine();
+                }
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+
+                if (bw != null) {
+                    bw.close();
+                    fw.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private BlocoControle carregarBlocoControle(File file) {
         PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
         byte[] dadosControle = lerBlocoControle(file);
 
         return new BlocoControle(dadosControle);
     }
 
-    private ArrayList<BlocoDado> carregarBlocosDados(File file, int start, int ultimoBlocoID){
+    private ArrayList<BlocoDado> carregarBlocosDados(File file, int start, int ultimoBlocoID) {
         // ler desde o primeiro bloco ate o proximo bloco livre - 1
-        if(ultimoBlocoID < 0)
+        if (ultimoBlocoID < 0)
             ultimoBlocoID = 0;
 
         boolean buscarBloco = true;
@@ -125,14 +165,14 @@ public class GerenciadorArquivos {
 
         int offset = start;
 
-        while (buscarBloco){
+        while (buscarBloco) {
 
             byte[] bytes = lerDadosArquivo(file, offset, TAMANHO_BLOCO);
-            offset+= bytes.length;
+            offset += bytes.length;
             BlocoDado bloco = new BlocoDado(bytes);
             result.add(bloco);
 
-            if(getIntFrom3Bytes(bloco.getIdBloco()) == ultimoBlocoID){
+            if (getIntFrom3Bytes(bloco.getIdBloco()) == ultimoBlocoID) {
                 buscarBloco = false;
             }
 
@@ -141,13 +181,13 @@ public class GerenciadorArquivos {
         return result;
     }
 
-    private int getContainerID(){
+    private int getContainerID() {
         int result = containerID;
         atualizarContainerID();
         return result;
     }
 
-    private void atualizarContainerID(){
+    private void atualizarContainerID() {
         this.containerID++;
     }
 

@@ -1,5 +1,0 @@
-COD_AUTHOR[I(5)]|NAME_AUTHOR[A(100)]|
-5|RE|
-6|BR|
-7|DD|
-2|FF|

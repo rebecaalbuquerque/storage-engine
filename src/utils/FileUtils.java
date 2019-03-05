@@ -3,22 +3,29 @@ package utils;
 import java.io.File;
 import java.io.IOException;
 
-import static utils.RAFUtils.limparArquivo;
-
 public class FileUtils {
 
 
-    public static File criarArquivo(int idTabela){
-        String path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+    public static File criarArquivo(int idTabela, boolean isRowID){
+
+        String path;
+
+        if(isRowID)
+            path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+        else
+            path = DiretorioUtils.getDiretorioSaidaRowIDs() + "/rowIDs-tabela" + idTabela + ".txt";
 
         File file = new File(path);
 
         try {
 
             if(file.createNewFile()){
-                PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
-            } else {
-                limparArquivo(file);
+
+                if(isRowID)
+                    PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
+                else
+                    PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName());
+
             }
 
             return file;
