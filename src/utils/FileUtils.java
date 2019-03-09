@@ -1,19 +1,35 @@
 package utils;
 
+import enums.TipoArquivo;
+
 import java.io.File;
 import java.io.IOException;
+
+import static utils.DiretorioUtils.*;
 
 public class FileUtils {
 
 
-    public static File criarArquivo(int idTabela, boolean isRowID){
+    public static File criarArquivo(int idTabela, TipoArquivo tipoArquivo){
 
         String path;
 
-        if(isRowID)
-            path = DiretorioUtils.getDiretorioSaidaRowIDs() + "/rowIDs-tabela" + idTabela + ".txt";
-        else
-            path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+        switch (tipoArquivo){
+            case SAIDA_TABELAS:
+                path = tipoArquivo.path + idTabela + ".txt";
+                break;
+
+            case ROW_IDS:
+                path = tipoArquivo.path + idTabela + ".txt";
+                break;
+
+            case LOG_BUFFER:
+                path = tipoArquivo.path + idTabela + ".txt";
+                break;
+
+            default:
+                path = "";
+        }
 
         File file = new File(path);
 
@@ -21,10 +37,18 @@ public class FileUtils {
 
             if(file.createNewFile()){
 
-                if(isRowID)
-                    PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName());
-                else
-                    PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
+                switch (tipoArquivo){
+                    case SAIDA_TABELAS:
+                        PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
+                        break;
+
+                    case ROW_IDS:
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName());
+                        break;
+
+                    case LOG_BUFFER:
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Log Buffer: " + file.getName());
+                }
 
             }
 
@@ -37,7 +61,8 @@ public class FileUtils {
     }
 
     public static File buscarArquivo(int idTabela){
-        String path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+        // TODO: TIPO ARQUIVO
+        String path = getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
 
         return new File(path);
     }

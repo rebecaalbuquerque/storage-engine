@@ -1,5 +1,6 @@
 package sgbd;
 
+import enums.TipoArquivo;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 import utils.FileUtils;
@@ -29,7 +30,7 @@ public class GerenciadorArquivos {
 
         int offset;
         String linha;
-        File saida = FileUtils.criarArquivo(containerID, false);
+        File saida = FileUtils.criarArquivo(containerID, TipoArquivo.SAIDA_TABELAS);
         ArrayList<BlocoDado> dados = new ArrayList<>();
 
         FileReader reader;
@@ -116,7 +117,7 @@ public class GerenciadorArquivos {
     }
 
     private void escreverRowIDs(int idTabela, ArrayList<String> rowIDs) {
-        File file = criarArquivo(idTabela, true);
+        File file = criarArquivo(idTabela, TipoArquivo.ROW_IDS);
 
         FileWriter fw = null;
         BufferedWriter bw = null;

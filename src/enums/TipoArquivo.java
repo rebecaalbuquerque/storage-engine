@@ -1,14 +1,17 @@
 package enums;
 
+import static utils.DiretorioUtils.*;
+
 public enum TipoArquivo {
 
-    ENTRADA_TABELAS(0),
-    SAIDA_TABELAS(1),
-    ENTRADA_ROW_IDS(2),
-    SAIDA_ROW_IDS(3);
+    ENTRADA_ARQUIVOS(0, getDiretorioEntrada()),
+    SAIDA_TABELAS(1, getDiretorioSaidaTabelas() + "/tabela"),
+    ROW_IDS(2, getDiretorioSaidaRowIDs() + "/rowIDs-tabela"),
+    LOG_BUFFER(3, getDiretorioSaidaBuffer() + "/buffer-tabela");
 
-    public int valor;
+    public int id;
+    public String path;
 
-    TipoArquivo(int valor){ this.valor = valor; }
+    TipoArquivo(int id, String path){ this.id = id; this.path = path; }
 
 }

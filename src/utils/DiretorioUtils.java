@@ -1,5 +1,7 @@
 package utils;
 
+import enums.TipoArquivo;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -30,6 +32,10 @@ public class DiretorioUtils {
         return System.getProperty("user.dir") + DIRETORIO_SAIDA_ROW_IDS;
     }
 
+    public static String getDiretorioSaidaBuffer(){
+        return System.getProperty("user.dir") + DIRETORIO_SAIDA_LOG_BUFFER;
+    }
+
     /**
      * Verificando quantos arquivos existem no diretório de entrada
      * */
@@ -51,14 +57,26 @@ public class DiretorioUtils {
         return Objects.requireNonNull(new File(DiretorioUtils.getDiretorioSaidaRowIDs()).list()).length;
     }
 
-    public static ArrayList<String> getListaArquivos(boolean isEntrada){
+    public static ArrayList<String> getListaArquivos(TipoArquivo tipoArquivo){
         ArrayList<String> result = new ArrayList<>();
         File[] arrayArquivos;
 
-        if(isEntrada)
-            arrayArquivos = new File(getDiretorioEntrada()).listFiles();
-        else
-            arrayArquivos = new File(getDiretorioSaidaTabelas()).listFiles();
+        switch (tipoArquivo){
+            case SAIDA_TABELAS:
+                arrayArquivos = new File(getDiretorioSaidaTabelas()).listFiles();
+                break;
+
+            case ENTRADA_ARQUIVOS:
+                arrayArquivos = new File(getDiretorioEntrada()).listFiles();
+                break;
+
+            case ROW_IDS:
+                arrayArquivos = new File(getDiretorioSaidaRowIDs()).listFiles();
+                break;
+
+            default:
+                arrayArquivos = new File[]{};
+        }
 
         if(arrayArquivos != null){
             for (File a : arrayArquivos) {

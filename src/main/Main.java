@@ -1,22 +1,28 @@
 package main;
 
+import enums.TipoArquivo;
 import sgbd.GerenciadorArquivos;
+import sgbd.GerenciadorBuffer;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static constants.ConstantesRegex.APENAS_LETRAS;
+import static constants.ConstantesRegex.CARACTER_ESPECIAL;
 import static utils.DiretorioUtils.getDiretorioEntrada;
 import static utils.DiretorioUtils.getListaArquivos;
 
-@SuppressWarnings("Duplicates")
+
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     private static GerenciadorArquivos ga;
+    private static GerenciadorBuffer gb;
 
     public static void main(String[] args) {
 
         ga = new GerenciadorArquivos();
+        gb = new GerenciadorBuffer();
 
         int opcao;
 
@@ -37,6 +43,10 @@ public class Main {
                 case 2:
                     iniciarMenuLerTabela();
                     break;
+
+                case 3:
+                    iniciarSimulacaoBuffer();
+                    break;
             }
 
         } while (opcao != 4);
@@ -45,7 +55,7 @@ public class Main {
     }
 
     private static void iniciarMenuCriarTabela() {
-        ArrayList<String> arquivos = getListaArquivos(true);
+        ArrayList<String> arquivos = getListaArquivos(TipoArquivo.ENTRADA_ARQUIVOS);
         int index = 0;
         int criarTabelaOpcao;
 
@@ -69,7 +79,7 @@ public class Main {
     }
 
     private static void iniciarMenuLerTabela() {
-        ArrayList<String> arquivos = getListaArquivos(false);
+        ArrayList<String> arquivos = getListaArquivos(TipoArquivo.SAIDA_TABELAS);
         int index = 1;
         int lerTabelaOpcao;
 
@@ -91,10 +101,11 @@ public class Main {
         ga.lerTabela(lerTabelaOpcao);
     }
 
-    private static void iniciarSimulacaoRowIDs(){
-        ArrayList<String> arquivos = getListaArquivos(false);
+    private static void iniciarSimulacaoBuffer(){
+        ArrayList<String> arquivos = getListaArquivos(TipoArquivo.ROW_IDS);
         int index = 1;
         int rowIDsOpcao;
+        String idTabela;
 
         do {
             System.out.println("# MENU DE ESCOLHA DE LISTA DE ROWIDS #");
@@ -107,9 +118,13 @@ public class Main {
             System.out.print("\nEscolha uma opção: ");
             rowIDsOpcao = scanner.nextInt();
             System.out.println();
-
+            idTabela = arquivos.get(rowIDsOpcao-1).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, "");
 
         } while (rowIDsOpcao < 0 || rowIDsOpcao > arquivos.size() - 1);
+
+
+        //gb.init();
+
     }
 
 }

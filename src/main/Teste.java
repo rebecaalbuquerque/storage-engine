@@ -16,7 +16,6 @@ public class Teste {
     public static void main(String[] args) {
         //testarBlocoDados(dado);
         //testarBlocoControle();
-
     }
 
     private static void testarBlocoDados(String linha) {

@@ -2,6 +2,8 @@ package sgbd;
 
 import sgbd.bloco.BlocoDado;
 
+import java.util.ArrayList;
+
 public class GerenciadorBuffer {
 
     private int miss;
@@ -11,8 +13,16 @@ public class GerenciadorBuffer {
     public GerenciadorBuffer() {
     }
 
-    /* UTILITARIOS */
-    public void getBloco(){
+    public void init(ArrayList<String> rowIDs){
+
+    }
+
+    private void buscarBloco(){
+        // se estiver na memoria
+
+        // se nao estiver na memoria (busca no disco)
+
+        // fazer a troca
 
     }
 
