@@ -54,6 +54,18 @@ public class BlocoDado extends Bloco {
     }
 
     /* Utilitários */
+    public ArrayList<String> getRowIDs(){
+        ArrayList<String> result = new ArrayList<>();
+        int containerID = (int) getIdArquivo();
+        int blocoID = getIntFrom3Bytes(getIdBloco());
+
+        for (int indexTupla : getIndexesTuplas(getTuplaDirectory())) {
+            result.add(containerID + "-" + blocoID + "-" + indexTupla);
+        }
+
+        return result;
+    }
+
     public void adicionarNovaTupla(String novaTupla){
         inserirTupla(getTuplaFormatada(novaTupla));
     }

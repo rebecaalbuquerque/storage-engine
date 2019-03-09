@@ -24,7 +24,8 @@ public class Main {
             System.out.println("### MENU SGBD ###");
             System.out.println("[1]\t Criar nova tabela");
             System.out.println("[2]\t Ler tabela");
-            System.out.println("[3]\t Sair");
+            System.out.println("[3]\t Simular requisições de RowIDs");
+            System.out.println("[4]\t Sair");
             System.out.print("\nEscolha uma opção do menu principal: ");
             opcao = scanner.nextInt();
             System.out.println();
@@ -36,12 +37,9 @@ public class Main {
                 case 2:
                     iniciarMenuLerTabela();
                     break;
-                case 3:
-                    System.out.println("opção 3");
-                    break;
             }
 
-        } while (opcao != 3);
+        } while (opcao != 4);
 
 
     }
@@ -51,14 +49,14 @@ public class Main {
         int index = 0;
         int criarTabelaOpcao;
 
-        System.out.println("# MENU DE ESCOLHA DE ARQUIVOS #");
-
-        for (String a : arquivos) {
-            System.out.println("[" + index + "] " + a);
-            index++;
-        }
-
         do {
+            System.out.println("# MENU DE ESCOLHA DE ARQUIVOS #");
+
+            for (String a : arquivos) {
+                System.out.println("[" + index + "] " + a);
+                index++;
+            }
+
             System.out.print("\nEscolha um arquivo: ");
             criarTabelaOpcao = scanner.nextInt();
             System.out.println();
@@ -75,14 +73,14 @@ public class Main {
         int index = 1;
         int lerTabelaOpcao;
 
-        System.out.println("# MENU DE ESCOLHA DE TABELAS #");
-
-        for (String a : arquivos) {
-            System.out.println("[" + index + "] " + a);
-            index++;
-        }
-
         do {
+            System.out.println("# MENU DE ESCOLHA DE TABELAS #");
+
+            for (String a : arquivos) {
+                System.out.println("[" + index + "] " + a);
+                index++;
+            }
+
             System.out.print("\nEscolha uma tabela: ");
             lerTabelaOpcao = scanner.nextInt();
             System.out.println();
@@ -91,6 +89,27 @@ public class Main {
         } while (lerTabelaOpcao < 0 || lerTabelaOpcao > arquivos.size());
 
         ga.lerTabela(lerTabelaOpcao);
+    }
+
+    private static void iniciarSimulacaoRowIDs(){
+        ArrayList<String> arquivos = getListaArquivos(false);
+        int index = 1;
+        int rowIDsOpcao;
+
+        do {
+            System.out.println("# MENU DE ESCOLHA DE LISTA DE ROWIDS #");
+
+            for (String a : arquivos) {
+                System.out.println("[" + index + "] " + a);
+                index++;
+            }
+
+            System.out.print("\nEscolha uma opção: ");
+            rowIDsOpcao = scanner.nextInt();
+            System.out.println();
+
+
+        } while (rowIDsOpcao < 0 || rowIDsOpcao > arquivos.size() - 1);
     }
 
 }

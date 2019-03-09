@@ -11,9 +11,9 @@ public class FileUtils {
         String path;
 
         if(isRowID)
-            path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
-        else
             path = DiretorioUtils.getDiretorioSaidaRowIDs() + "/rowIDs-tabela" + idTabela + ".txt";
+        else
+            path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
 
         File file = new File(path);
 
@@ -22,9 +22,9 @@ public class FileUtils {
             if(file.createNewFile()){
 
                 if(isRowID)
-                    PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
-                else
                     PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName());
+                else
+                    PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
 
             }
 

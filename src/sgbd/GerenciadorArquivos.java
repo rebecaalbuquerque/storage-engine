@@ -7,6 +7,7 @@ import utils.PrintUtils;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
@@ -21,11 +22,11 @@ public class GerenciadorArquivos {
 
     private int containerID;
 
-    public GerenciadorArquivos() {
-        containerID = getQuantidadeArquivosSaidaTabelas() + 1;
-    }
+    public GerenciadorArquivos() { }
 
     public void criarTabela(String arquivoEntrada) {
+        containerID = getQuantidadeArquivosSaidaTabelas() + 1;
+
         int offset;
         String linha;
         File saida = FileUtils.criarArquivo(containerID, false);
@@ -45,6 +46,7 @@ public class GerenciadorArquivos {
             // Criando primeiro Bloco de Dados
             BlocoDado blocoDadoAtual = new BlocoDado(getContainerID());
             dados.add(blocoDadoAtual);
+
             PrintUtils.printLoadingInformation("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
 
             while ((linha = buffer.readLine()) != null) {
@@ -70,9 +72,6 @@ public class GerenciadorArquivos {
 
             // Escrevendo Bloco de Dados
             for (BlocoDado d : dados) {
-                //PrintUtils.printAdditionaInformation("containerID.blocoID = " + d.getContainerBlocoID());
-                //PrintUtils.printAdditionaInformation("BlocoID: " + getIntFrom3Bytes(d.getIdBloco()));
-
                 byte[] blocoCompleto = d.getInformacoesCompletas();
                 escreverArquivo(saida, blocoCompleto, offset);
                 offset += blocoCompleto.length;
@@ -82,7 +81,6 @@ public class GerenciadorArquivos {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
     }
 
@@ -104,15 +102,20 @@ public class GerenciadorArquivos {
 
         for (BlocoDado d : dados) {
             PrintUtils.printResultData(d.toString(controle));
-            // Fazer um método para retornar os RowIDs daquele bloco?
-
-
-            int idContainer = (int) d.getIdArquivo();
-            int idBloco = getIntFrom3Bytes(d.getIdBloco());
+            rowIDs.addAll(d.getRowIDs());
         }
+
+        Collections.shuffle(rowIDs);
+
+        System.out.println("Começando leitura dos RowIDs");
+        for (String rowID : rowIDs) {
+            System.out.println(rowID);
+        }
+
+        escreverRowIDs(tabelaID, rowIDs);
     }
 
-    private void gerarRowIDs(int idTabela, ArrayList<String> rowIDs) {
+    private void escreverRowIDs(int idTabela, ArrayList<String> rowIDs) {
         File file = criarArquivo(idTabela, true);
 
         FileWriter fw = null;
@@ -182,13 +185,7 @@ public class GerenciadorArquivos {
     }
 
     private int getContainerID() {
-        int result = containerID;
-        atualizarContainerID();
-        return result;
-    }
-
-    private void atualizarContainerID() {
-        this.containerID++;
+        return containerID;
     }
 
     static {
