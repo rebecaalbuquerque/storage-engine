@@ -160,7 +160,7 @@ public class BlocoDado extends Bloco {
 
         }
 
-        PrintUtils.printAdditionaInformation("Total de tuplas do Bloco de Dados " + getIntFrom3Bytes(getIdBloco()) + " = " + tuplas.size() + "\n");
+        PrintUtils.printAdditionalInformation("Total de tuplas do Bloco de Dados " + getIntFrom3Bytes(getIdBloco()) + " = " + tuplas.size() + "\n");
         return tuplas;
     }
 

@@ -5,17 +5,17 @@ import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 import utils.FileUtils;
 import utils.PrintUtils;
+import utils.RAFUtils;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
 import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
-import static utils.FileUtils.buscarArquivo;
+import static utils.FileUtils.buscarTabela;
 import static utils.FileUtils.criarArquivo;
 import static utils.RAFUtils.*;
 
@@ -53,13 +53,13 @@ public class GerenciadorArquivos {
             while ((linha = buffer.readLine()) != null) {
 
                 if (temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)) {
-                    PrintUtils.printAdditionaInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    PrintUtils.printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
 
                 } else {
                     blocoDadoAtual = new BlocoDado(getContainerID());
                     PrintUtils.printLoadingInformation("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
-                    PrintUtils.printAdditionaInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    PrintUtils.printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
                     dados.add(blocoDadoAtual);
                     controle.setProximoBloco(getIntFrom3Bytes(blocoDadoAtual.getIdBloco()) + 1);
@@ -92,13 +92,13 @@ public class GerenciadorArquivos {
             PrintUtils.printError("A tabela" + tabelaID + ".txt não existe.");
         }
 
-        File file = buscarArquivo(tabelaID);
+        File file = buscarTabela(tabelaID);
 
         // carregar bloco de controle e de dados do file
         BlocoControle controle = carregarBlocoControle(file);
         ArrayList<BlocoDado> dados = carregarBlocosDados(file, controle.getInformacoesCompletas().length, getIntFromBytes(controle.getProximoBloco()) - 1);
 
-        PrintUtils.printAdditionaInformation("Quantidade de Bloco de Dados = " + dados.size());
+        PrintUtils.printAdditionalInformation("Quantidade de Bloco de Dados = " + dados.size());
         PrintUtils.printResultData(controle.toString());
 
         for (BlocoDado d : dados) {
@@ -106,14 +106,22 @@ public class GerenciadorArquivos {
             rowIDs.addAll(d.getRowIDs());
         }
 
-        Collections.shuffle(rowIDs);
+        //Collections.shuffle(rowIDs);
 
-        System.out.println("Começando leitura dos RowIDs");
+        /*System.out.println("Começando leitura dos RowIDs");
         for (String rowID : rowIDs) {
             System.out.println(rowID);
-        }
+        }*/
 
         escreverRowIDs(tabelaID, rowIDs);
+    }
+
+    public BlocoDado buscarBloco(int idTabela, int idBloco){
+        File file = buscarTabela(idTabela);
+
+        BlocoControle controle = new BlocoControle(lerBlocoControle(file));
+
+        return new BlocoDado(RAFUtils.lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO));
     }
 
     private void escreverRowIDs(int idTabela, ArrayList<String> rowIDs) {

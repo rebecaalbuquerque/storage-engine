@@ -14,6 +14,7 @@ public class FileUtils {
 
         String path;
 
+        // TODO: precisa do switch? não pode ser "path = tipoArquivo.path + idTabela + ".txt";" direto?
         switch (tipoArquivo){
             case SAIDA_TABELAS:
                 path = tipoArquivo.path + idTabela + ".txt";
@@ -60,10 +61,8 @@ public class FileUtils {
         }
     }
 
-    public static File buscarArquivo(int idTabela){
-        // TODO: TIPO ARQUIVO
+    public static File buscarTabela(int idTabela){
         String path = getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
-
         return new File(path);
     }
 
