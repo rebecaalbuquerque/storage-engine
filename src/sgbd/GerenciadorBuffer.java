@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.TAMANHO_MEMORIA;
 import static enums.TipoArquivo.LOG_BUFFER;
+import static utils.ConversorUtils.getIntFrom3Bytes;
 
 public class GerenciadorBuffer {
 
@@ -66,14 +67,11 @@ public class GerenciadorBuffer {
 
             }
 
-            logBuffer.add("\\n\\n");
+            logBuffer.add("");
 
         }
 
-        logBuffer.add("---\\n");
-        logBuffer.add("Quantidade de HIT: " + hit);
-        logBuffer.add("Quantidade de MISS: " + miss);
-        logBuffer.add("Taxa hit: " + (hit + (hit/miss)));
+        logBuffer.add(0, "Quantidade de HIT: " + hit + "\n" + "Quantidade de MISS: " + miss + "\n" + "Taxa hit: " + getTaxaHit() + "\n------------");
 
         FileUtils.escreverEmArquivo(log, logBuffer);
 
@@ -124,6 +122,8 @@ public class GerenciadorBuffer {
 
         }
 
+        LRU = novoArray;
+
     }
 
     /**
@@ -143,16 +143,22 @@ public class GerenciadorBuffer {
     }
 
     private int getPosicaoBlocoEmMemoria(PageID id){
+        int result = -1;
 
         for (int i = 0; i < memoria.length; i++) {
             BlocoDado bloco = memoria[i];
 
-            if(bloco.getIdArquivo() == id.getIdFile() && bloco.getIdBloco() == id.getIdBloco())
-                return i;
+            if(bloco != null){
+
+                if(bloco.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(bloco.getIdBloco()) == id.getIdBlocoAsInt())
+                    result = i;
+
+            }
+
         }
 
 
-        return -1;
+        return result;
     }
 
     private boolean isMemoriaFull(){
@@ -168,6 +174,10 @@ public class GerenciadorBuffer {
 
     private BlocoDado getBlocoEmDisco(int idFile, int idBloco){
         return ga.buscarBloco(idFile, idBloco);
+    }
+
+    private double getTaxaHit(){
+        return (double)hit / (hit + miss);
     }
 
 }

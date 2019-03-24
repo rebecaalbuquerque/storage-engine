@@ -2,10 +2,7 @@ package utils;
 
 import enums.TipoArquivo;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 import static utils.DiretorioUtils.*;
@@ -45,9 +42,39 @@ public class FileUtils {
         }
     }
 
+    public static ArrayList<String> getDadosArquivo(File file){
+        FileReader r;
+        BufferedReader b;
+        String linha = "";
+        ArrayList<String> dados = new ArrayList<>();
+
+        try {
+
+            r = new FileReader(file);
+            b = new BufferedReader(r);
+
+            while ((linha = b.readLine()) != null) {
+                dados.add(linha);
+            }
+
+            b.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return dados;
+    }
+
     public static File criarArquivo(int idTabela, TipoArquivo tipoArquivo){
 
-        String path = tipoArquivo.path + idTabela + ".txt";
+        String path;
+
+        if(tipoArquivo == TipoArquivo.SAIDA_TABELAS)
+            path = tipoArquivo.path + idTabela + ".txt";
+        else
+            path = tipoArquivo.path + ".txt";
 
         File file = new File(path);
 

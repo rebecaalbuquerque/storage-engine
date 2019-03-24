@@ -4,13 +4,14 @@ import enums.TipoArquivo;
 import sgbd.GerenciadorArquivos;
 import sgbd.GerenciadorBuffer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static constants.ConstantesRegex.APENAS_LETRAS;
-import static constants.ConstantesRegex.CARACTER_ESPECIAL;
 import static utils.DiretorioUtils.getDiretorioEntrada;
 import static utils.DiretorioUtils.getListaArquivos;
+import static utils.FileUtils.criarArquivo;
+import static utils.FileUtils.getDadosArquivo;
 
 
 public class Main {
@@ -22,7 +23,6 @@ public class Main {
     public static void main(String[] args) {
 
         ga = new GerenciadorArquivos();
-        gb = new GerenciadorBuffer();
 
         int opcao;
 
@@ -30,8 +30,9 @@ public class Main {
             System.out.println("### MENU SGBD ###");
             System.out.println("[1]\t Criar nova tabela");
             System.out.println("[2]\t Ler tabela");
-            System.out.println("[3]\t Simular requisições de RowIDs");
-            System.out.println("[4]\t Sair");
+            System.out.println("[3]\t Gerar Pages IDs");
+            System.out.println("[4]\t Simular requisições de PageIDs");
+            System.out.println("[5]\t Sair");
             System.out.print("\nEscolha uma opção do menu principal: ");
             opcao = scanner.nextInt();
             System.out.println();
@@ -40,18 +41,27 @@ public class Main {
                 case 1:
                     iniciarMenuCriarTabela();
                     break;
+
                 case 2:
                     iniciarMenuLerTabela();
                     break;
 
                 case 3:
+                    iniciarGeracaoDePageIDs();
+                    break;
+
+                case 4:
                     iniciarSimulacaoBuffer();
                     break;
             }
 
-        } while (opcao != 4);
+        } while (opcao != 5);
 
 
+    }
+
+    private static void iniciarGeracaoDePageIDs(){
+        ga.gerarPageIDs();
     }
 
     private static void iniciarMenuCriarTabela() {
@@ -98,32 +108,15 @@ public class Main {
 
         } while (lerTabelaOpcao < 0 || lerTabelaOpcao > arquivos.size());
 
-        ga.lerTabela(lerTabelaOpcao);
+        ga.lerTabela(lerTabelaOpcao, false);
     }
 
     private static void iniciarSimulacaoBuffer(){
-        ArrayList<String> arquivos = getListaArquivos(TipoArquivo.ROW_IDS);
-        int index = 1;
-        int rowIDsOpcao;
-        String idTabela;
+        File file = criarArquivo(-1, TipoArquivo.ROW_IDS_SHUFFLED);
 
-        do {
-            System.out.println("# MENU DE ESCOLHA DE LISTA DE ROWIDS #");
+        gb = new GerenciadorBuffer();
 
-            for (String a : arquivos) {
-                System.out.println("[" + index + "] " + a);
-                index++;
-            }
-
-            System.out.print("\nEscolha uma opção: ");
-            rowIDsOpcao = scanner.nextInt();
-            System.out.println();
-            idTabela = arquivos.get(rowIDsOpcao-1).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, "");
-
-        } while (rowIDsOpcao < 0 || rowIDsOpcao > arquivos.size() - 1);
-
-
-        //gb.init();
+        gb.init(getDadosArquivo(file), ga);
 
     }
 

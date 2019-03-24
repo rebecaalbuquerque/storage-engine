@@ -9,6 +9,8 @@ import utils.RAFUtils;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
@@ -16,11 +18,13 @@ import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
 import static utils.FileUtils.*;
+import static utils.PrintUtils.*;
 import static utils.RAFUtils.*;
 
 public class GerenciadorArquivos {
 
     private int containerID;
+    private ArrayList<String> rowIDs = new ArrayList<>();
 
     public GerenciadorArquivos() { }
 
@@ -52,13 +56,13 @@ public class GerenciadorArquivos {
             while ((linha = buffer.readLine()) != null) {
 
                 if (temEspacoParaNovaTupla(blocoDadoAtual.getTamanhoTuplasDisponivel(), linha)) {
-                    PrintUtils.printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
 
                 } else {
                     blocoDadoAtual = new BlocoDado(getContainerID());
                     PrintUtils.printLoadingInformation("Criando Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
-                    PrintUtils.printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
+                    printAdditionalInformation("Adicionando nova tupla no Bloco de Dados " + getIntFrom3Bytes(blocoDadoAtual.getIdBloco()));
                     blocoDadoAtual.adicionarNovaTupla(linha);
                     dados.add(blocoDadoAtual);
                     controle.setProximoBloco(getIntFrom3Bytes(blocoDadoAtual.getIdBloco()) + 1);
@@ -78,17 +82,17 @@ public class GerenciadorArquivos {
             }
 
             buffer.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void lerTabela(int tabelaID) {
-        ArrayList<String> rowIDs = new ArrayList<>();
+    public void lerTabela(int tabelaID, boolean gerarPagesIds) {
 
         if (tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()) {
-            PrintUtils.printError("A tabela" + tabelaID + ".txt não existe.");
+            printError("A tabela" + tabelaID + ".txt não existe.");
         }
 
         File file = buscarTabela(tabelaID);
@@ -97,22 +101,32 @@ public class GerenciadorArquivos {
         BlocoControle controle = carregarBlocoControle(file);
         ArrayList<BlocoDado> dados = carregarBlocosDados(file, controle.getInformacoesCompletas().length, getIntFromBytes(controle.getProximoBloco()) - 1);
 
-        PrintUtils.printAdditionalInformation("Quantidade de Bloco de Dados = " + dados.size());
-        PrintUtils.printResultData(controle.toString());
+        printAdditionalInformation("Quantidade de Bloco de Dados = " + dados.size());
+        printResultData(controle.toString());
 
         for (BlocoDado d : dados) {
-            PrintUtils.printResultData(d.toString(controle));
+            if(!gerarPagesIds)
+                printResultData(d.toString(controle));
+
             rowIDs.addAll(d.getRowIDs());
         }
+    }
 
-        //Collections.shuffle(rowIDs);
+    public void gerarPageIDs(){
+        printLoadingInformation("Iniciando geração de PageIDs a partir de todas as tabelas existentes...");
 
-        /*System.out.println("Começando leitura dos RowIDs");
-        for (String rowID : rowIDs) {
-            System.out.println(rowID);
-        }*/
+        if(getQuantidadeArquivosSaidaTabelas() == 0){
+            printError("Não existe tabela na pasta de saída.");
+        }
 
-        escreverRowIDs(tabelaID, rowIDs);
+        for (int i = 1; i <= getQuantidadeArquivosSaidaTabelas(); i++) {
+            lerTabela(i, true);
+        }
+
+        escreverRowIDs(rowIDs);
+
+        printLoadingInformation("PageIDs gerados com sucesso!");
+
     }
 
     public BlocoDado buscarBloco(int idTabela, int idBloco){
@@ -123,9 +137,15 @@ public class GerenciadorArquivos {
         return new BlocoDado(RAFUtils.lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO));
     }
 
-    private void escreverRowIDs(int idTabela, ArrayList<String> rowIDs) {
-        File file = criarArquivo(idTabela, TipoArquivo.ROW_IDS);
+    private void escreverRowIDs(ArrayList<String> rowIDs) {
+        File file = criarArquivo(-1, TipoArquivo.ROW_IDS);
+        File fileShuffled = criarArquivo(-1, TipoArquivo.ROW_IDS_SHUFFLED);
+
         escreverEmArquivo(file, rowIDs);
+
+        Collections.shuffle(rowIDs);
+
+        escreverEmArquivo(fileShuffled, rowIDs);
     }
 
     private BlocoControle carregarBlocoControle(File file) {
@@ -166,7 +186,7 @@ public class GerenciadorArquivos {
     }
 
     static {
-        PrintUtils.printLoadingInformation("Iniciando Gerenciador de Arquivos...\n");
+        printLoadingInformation("Iniciando Gerenciador de Arquivos...\n");
     }
 
 }

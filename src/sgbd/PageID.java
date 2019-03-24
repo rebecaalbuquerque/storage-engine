@@ -19,11 +19,11 @@ public class PageID {
         setIdBloco(intToArrayByte(Integer.parseInt(idArray[1]), 3));
     }
 
-    public int getIdFileAsInt(){
+    public int getIdBlocoAsInt(){
         return getIntFrom3Bytes(idBloco);
     }
 
-    public int getIdBlocoAsInt(){
+    public int getIdFileAsInt(){
         return (int) idFile;
     }
 
