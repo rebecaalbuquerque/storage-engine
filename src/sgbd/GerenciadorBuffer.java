@@ -1,11 +1,15 @@
 package sgbd;
 
 import sgbd.bloco.BlocoDado;
+import utils.FileUtils;
+import utils.PrintUtils;
 import utils.SwapUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.TAMANHO_MEMORIA;
+import static enums.TipoArquivo.LOG_BUFFER;
 
 public class GerenciadorBuffer {
 
@@ -14,37 +18,64 @@ public class GerenciadorBuffer {
     private GerenciadorArquivos ga;
     private BlocoDado[] memoria;
     private PageID[] LRU;
+    private File log;
 
-    public GerenciadorBuffer() { }
+    public GerenciadorBuffer() {
+        PrintUtils.printLoadingInformation("Iniciando o Log do Gerenciador de Buffer...");
+        log = new File(LOG_BUFFER.path + ".txt");
+    }
 
     public void init(ArrayList<String> rowIDs, GerenciadorArquivos ga){
         this.ga = ga;
         this.memoria = new BlocoDado[TAMANHO_MEMORIA];
         this.LRU = new PageID[TAMANHO_MEMORIA];
+        ArrayList<String> logBuffer = new ArrayList<>();
+
+        logBuffer.add("Quantidade de Pages Requests: " + rowIDs.size());
 
         // Simulando os Pages Requests
         for (String rowID : rowIDs) {
+
             PageID pageID = new PageID(rowID);
+            logBuffer.add(">> Iniciando novo Page Request - PageID: " + pageID.getIdFileAsInt() + "-" + pageID.getIdBlocoAsInt());
             int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(pageID);
 
             if(posicaoBlocoMemoria > -1){
 
                 hit++;
+                logBuffer.add("HIT - Pagina em memoria, iniciando swap...");
                 atualizarPosicoesLRU(posicaoBlocoMemoria);
 
             } else {
 
                 miss++;
+                logBuffer.add("MISS - Iniciando recuperacao do Bloco em disco...");
+                BlocoDado bloco = getBlocoEmDisco(pageID.getIdFileAsInt(), pageID.getIdBlocoAsInt());
 
                 if(isMemoriaFull()){
+                    logBuffer.add("Memoria cheia, iniciando retirada do LRU...");
+                    removerLRU();
+                    adicionarNaMemoria(bloco);
+                    adicionarNaLRU(pageID);
 
                 } else {
-
+                    logBuffer.add("Memoria possui espaco disponivel, iniciando alocacao...");
+                    adicionarNaMemoria(bloco);
+                    adicionarNaLRU(pageID);
                 }
 
             }
 
+            logBuffer.add("\\n\\n");
+
         }
+
+        logBuffer.add("---\\n");
+        logBuffer.add("Quantidade de HIT: " + hit);
+        logBuffer.add("Quantidade de MISS: " + miss);
+        logBuffer.add("Taxa hit: " + (hit + (hit/miss)));
+
+        FileUtils.escreverEmArquivo(log, logBuffer);
 
     }
 
@@ -78,16 +109,36 @@ public class GerenciadorBuffer {
     }
 
     /**
-     * Adiciona elemento na LRU shifitando para direita
+     * Adiciona novo elemento na esquerda do array LRU e shifitando para direita os outros elementos
      * */
-    private void adicionarNaLRU(){
+    private void adicionarNaLRU(PageID novoPageID){
+        PageID[] novoArray = new PageID[LRU.length];
+        int countArray = 0;
+
+        novoArray[0] = novoPageID;
+
+        for (int i = 1; i < novoArray.length; i++) {
+
+            novoArray[i] = LRU[countArray];
+            countArray++;
+
+        }
 
     }
 
     /**
      * Adiciona elemento na memória
      * */
-    private void adicionarNaMemoria(){
+    private void adicionarNaMemoria(BlocoDado novoloco){
+
+        for (int i = 0; i < memoria.length; i++) {
+
+            if(memoria[i] == null){
+                memoria[i] = novoloco;
+                return;
+            }
+
+        }
 
     }
 

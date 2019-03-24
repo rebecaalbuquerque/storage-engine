@@ -1,6 +1,6 @@
 package sgbd;
 
-import static utils.ConversorUtils.intToArrayByte;
+import static utils.ConversorUtils.*;
 
 public class PageID {
 
@@ -17,6 +17,14 @@ public class PageID {
 
         setIdFile(intToArrayByte(Integer.parseInt(idArray[0]), 1)[0]);
         setIdBloco(intToArrayByte(Integer.parseInt(idArray[1]), 3));
+    }
+
+    public int getIdFileAsInt(){
+        return getIntFrom3Bytes(idBloco);
+    }
+
+    public int getIdBlocoAsInt(){
+        return (int) idFile;
     }
 
     public byte getIdFile() {

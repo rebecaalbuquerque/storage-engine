@@ -2,35 +2,52 @@ package utils;
 
 import enums.TipoArquivo;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static utils.DiretorioUtils.*;
 
 public class FileUtils {
 
+    public static void escreverEmArquivo(File file, ArrayList<String> dados){
+        FileWriter fw = null;
+        BufferedWriter bw = null;
+
+        try {
+
+            if (file != null) {
+                fw = new FileWriter(file);
+                bw = new BufferedWriter(fw);
+
+                for (String dado : dados) {
+                    bw.write(dado);
+                    bw.newLine();
+                }
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+
+                if (bw != null) {
+                    bw.close();
+                    fw.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static File criarArquivo(int idTabela, TipoArquivo tipoArquivo){
 
-        String path;
-
-        // TODO: precisa do switch? não pode ser "path = tipoArquivo.path + idTabela + ".txt";" direto?
-        switch (tipoArquivo){
-            case SAIDA_TABELAS:
-                path = tipoArquivo.path + idTabela + ".txt";
-                break;
-
-            case ROW_IDS:
-                path = tipoArquivo.path + idTabela + ".txt";
-                break;
-
-            case LOG_BUFFER:
-                path = tipoArquivo.path + idTabela + ".txt";
-                break;
-
-            default:
-                path = "";
-        }
+        String path = tipoArquivo.path + idTabela + ".txt";
 
         File file = new File(path);
 

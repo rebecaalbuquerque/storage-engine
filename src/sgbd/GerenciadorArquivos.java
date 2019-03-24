@@ -15,8 +15,7 @@ import static utils.BlocoUtils.temEspacoParaNovaTupla;
 import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
-import static utils.FileUtils.buscarTabela;
-import static utils.FileUtils.criarArquivo;
+import static utils.FileUtils.*;
 import static utils.RAFUtils.*;
 
 public class GerenciadorArquivos {
@@ -126,38 +125,7 @@ public class GerenciadorArquivos {
 
     private void escreverRowIDs(int idTabela, ArrayList<String> rowIDs) {
         File file = criarArquivo(idTabela, TipoArquivo.ROW_IDS);
-
-        FileWriter fw = null;
-        BufferedWriter bw = null;
-
-        try {
-
-            if (file != null) {
-                fw = new FileWriter(file);
-                bw = new BufferedWriter(fw);
-
-                for (String rowID : rowIDs) {
-                    bw.write(rowID);
-                    bw.newLine();
-                }
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-
-                if (bw != null) {
-                    bw.close();
-                    fw.close();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+        escreverEmArquivo(file, rowIDs);
     }
 
     private BlocoControle carregarBlocoControle(File file) {
