@@ -22,7 +22,7 @@ public class GerenciadorBuffer {
     private File log;
 
     public GerenciadorBuffer() {
-        PrintUtils.printLoadingInformation("Iniciando o Log do Gerenciador de Buffer...");
+        PrintUtils.printLoadingInformation("Iniciando o Log do Gerenciador de Buffer...\n");
         log = new File(LOG_BUFFER.path + ".txt");
     }
 
@@ -31,11 +31,15 @@ public class GerenciadorBuffer {
         this.memoria = new BlocoDado[TAMANHO_MEMORIA];
         this.LRU = new PageID[TAMANHO_MEMORIA];
         ArrayList<String> logBuffer = new ArrayList<>();
-
-        logBuffer.add("Quantidade de Pages Requests: " + rowIDs.size());
+        int countLoading = 0;
 
         // Simulando os Pages Requests
         for (String rowID : rowIDs) {
+            countLoading++;
+            double percent = (double) countLoading / rowIDs.size();
+
+            if(percent == 0.25 || percent == 0.50 || percent == 0.75 || percent == 1.0)
+                PrintUtils.printLoadingInformation(percent*100 + "% das Requisições foram finalizadas...");
 
             PageID pageID = new PageID(rowID);
             logBuffer.add(">> Iniciando novo Page Request - PageID: " + pageID.getIdFileAsInt() + "-" + pageID.getIdBlocoAsInt());
@@ -58,11 +62,13 @@ public class GerenciadorBuffer {
                     removerLRU();
                     adicionarNaMemoria(bloco);
                     adicionarNaLRU(pageID);
+                    logBuffer.add("Nova pagina adicionada em memoria...");
 
                 } else {
                     logBuffer.add("Memoria possui espaco disponivel, iniciando alocacao...");
                     adicionarNaMemoria(bloco);
                     adicionarNaLRU(pageID);
+                    logBuffer.add("Nova pagina adicionada em memoria...");
                 }
 
             }
@@ -71,7 +77,7 @@ public class GerenciadorBuffer {
 
         }
 
-        logBuffer.add(0, "Quantidade de HIT: " + hit + "\n" + "Quantidade de MISS: " + miss + "\n" + "Taxa hit: " + getTaxaHit() + "\n------------");
+        logBuffer.add(0, "Quantidade de Pages Requests: " + rowIDs.size() + "\n" + "Quantidade de HIT: " + hit + "\n" + "Quantidade de MISS: " + miss + "\n" + "Taxa de hit: " + getTaxaHit() + "\n------------\n");
 
         FileUtils.escreverEmArquivo(log, logBuffer);
 

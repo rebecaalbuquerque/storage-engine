@@ -102,14 +102,23 @@ public class GerenciadorArquivos {
         ArrayList<BlocoDado> dados = carregarBlocosDados(file, controle.getInformacoesCompletas().length, getIntFromBytes(controle.getProximoBloco()) - 1);
 
         printAdditionalInformation("Quantidade de Bloco de Dados = " + dados.size());
-        printResultData(controle.toString());
 
-        for (BlocoDado d : dados) {
-            if(!gerarPagesIds)
+        if(gerarPagesIds){
+
+            for (BlocoDado d : dados) {
+                rowIDs.addAll(d.getRowIDs());
+            }
+
+        } else {
+
+            printResultData(controle.toString());
+
+            for (BlocoDado d : dados) {
                 printResultData(d.toString(controle));
+            }
 
-            rowIDs.addAll(d.getRowIDs());
         }
+
     }
 
     public void gerarPageIDs(){
