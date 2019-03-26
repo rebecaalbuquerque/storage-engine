@@ -111,34 +111,11 @@ public class BlocoDado extends Bloco {
 
     }
 
-    public byte[] getTuplas(){
-        int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
-        ArrayList<byte[]> tuplas = new ArrayList<>();
-        ArrayList<byte[]> tuplasComSeparador = new ArrayList<>();
-
-        for (int index: indexesTuplas) {
-            byte[] tamanhoTupla = new byte[4];
-            int countTamanhoTupla = 0;
-
-            // Descobrindo tamanho da tupla
-            for (int i = index; i < index + 4; i++) {
-                tamanhoTupla[countTamanhoTupla] = this.dados[i];
-                countTamanhoTupla++;
-            }
-
-            tuplas.add(
-                    getTuplaReduzidaFormatada(index, getIntFromBytes(tamanhoTupla))
-            );
-
-        }
-
-        for (byte[] tupla : tuplas) {
-            tuplasComSeparador.add(tupla);
-            tuplasComSeparador.add(SEPARADOR_COLUNA_EM_BYTES);
-        }
-
-        return concatenarArrays(tuplasComSeparador);
+    public int getQuantidadeTuplas(){
+        return getShortFromBytes(tamanhoTuplaDirectory)/2;
     }
+
+    public void resetarId(){ contador = 0; }
 
     private ArrayList<byte[]> getListaTuplas(){
         int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
@@ -270,7 +247,7 @@ public class BlocoDado extends Bloco {
     }
 
     public String toString(BlocoControle controle) {
-        PrintUtils.printLoadingInformation("Iniciando processo de leitura das tuplas do Bloco de Dados: " + getIntFrom3Bytes(getIdBloco()) + " ...");
+        PrintUtils.printLoadingInformation("Iniciando processo de leitura das tuplas do Bloco de Dados: " + getIntFrom3Bytes(getIdBloco()) + ", Tabela: " + (int)getIdArquivo() + " ...");
 
         ArrayList<byte[]> tuplas = getListaTuplas();
         ArrayList<String[]> informacoesColunas = controle.getInformacoesColunas();

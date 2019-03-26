@@ -32,7 +32,8 @@ public class Main {
             System.out.println("[2]\t Ler tabela");
             System.out.println("[3]\t Gerar Pages IDs");
             System.out.println("[4]\t Simular requisições de PageIDs");
-            System.out.println("[5]\t Sair");
+            System.out.println("[5]\t Buscar bloco aleatório a partir de um PageID (exemplo: 1-219)");
+            System.out.println("[6]\t Sair");
             System.out.print("\nEscolha uma opção do menu principal: ");
             opcao = scanner.nextInt();
             System.out.println();
@@ -53,10 +54,22 @@ public class Main {
                 case 4:
                     iniciarSimulacaoBuffer();
                     break;
+
+                case 5:
+                    iniciarBuscaDeBloco();
+                    break;
             }
 
-        } while (opcao != 5);
+        } while (opcao != 6);
 
+
+    }
+
+    private static void iniciarBuscaDeBloco() {
+        System.out.println("Digite o PageID");
+        String pageID = scanner.next();
+        String[] pageIdArray = pageID.split("-");
+        ga.printarBloco(Integer.parseInt(pageIdArray[0]), Integer.parseInt(pageIdArray[1]));
 
     }
 

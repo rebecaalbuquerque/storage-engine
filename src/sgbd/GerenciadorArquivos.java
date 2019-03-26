@@ -70,9 +70,13 @@ public class GerenciadorArquivos {
 
             }
 
+            blocoDadoAtual.resetarId();
+
             // Escrevendo Bloco de Controle
             offset = controle.getInformacoesCompletas().length;
             escreverArquivo(saida, controle.getInformacoesCompletas(), 0);
+
+            printLoadingInformation("Aguarde...");
 
             // Escrevendo Bloco de Dados
             for (BlocoDado d : dados) {
@@ -90,6 +94,7 @@ public class GerenciadorArquivos {
     }
 
     public void lerTabela(int tabelaID, boolean gerarPagesIds) {
+        int qtdTotalTuplas = 0;
 
         if (tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()) {
             printError("A tabela" + tabelaID + ".txt não existe.");
@@ -114,15 +119,19 @@ public class GerenciadorArquivos {
             printResultData(controle.toString());
 
             for (BlocoDado d : dados) {
+                qtdTotalTuplas += d.getQuantidadeTuplas();
                 printResultData(d.toString(controle));
             }
 
+            printAdditionalInformation("Quantidade total de tuplas da Tabela " + tabelaID + " = " + qtdTotalTuplas);
+
         }
+
 
     }
 
     public void gerarPageIDs(){
-        printLoadingInformation("Iniciando geração de PageIDs a partir de todas as tabelas existentes...");
+        printLoadingInformation("Iniciando geração de PageIDs a partir de todas as tabelas existentes...\n");
 
         if(getQuantidadeArquivosSaidaTabelas() == 0){
             printError("Não existe tabela na pasta de saída.");
@@ -144,6 +153,19 @@ public class GerenciadorArquivos {
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
 
         return new BlocoDado(RAFUtils.lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO));
+    }
+
+    public void devolverBlocoAoDisco(int idTabela, int idBloco, BlocoDado bloco){
+        File file = buscarTabela(idTabela);
+        BlocoControle controle = new BlocoControle(lerBlocoControle(file));
+        escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO));
+    }
+
+    public void printarBloco(int idTabela, int idBloco){
+        File file = buscarTabela(idTabela);
+
+        BlocoControle controle = new BlocoControle(lerBlocoControle(file));
+        printResultData(new BlocoDado(lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO)).toString(controle));
     }
 
     private void escreverRowIDs(ArrayList<String> rowIDs) {

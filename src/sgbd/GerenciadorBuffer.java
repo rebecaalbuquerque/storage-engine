@@ -20,6 +20,7 @@ public class GerenciadorBuffer {
     private BlocoDado[] memoria;
     private PageID[] LRU;
     private File log;
+    private ArrayList<String> logBuffer;
 
     public GerenciadorBuffer() {
         PrintUtils.printLoadingInformation("Iniciando o Log do Gerenciador de Buffer...\n");
@@ -27,10 +28,10 @@ public class GerenciadorBuffer {
     }
 
     public void init(ArrayList<String> rowIDs, GerenciadorArquivos ga){
+        this.logBuffer = new ArrayList<>();
         this.ga = ga;
         this.memoria = new BlocoDado[TAMANHO_MEMORIA];
         this.LRU = new PageID[TAMANHO_MEMORIA];
-        ArrayList<String> logBuffer = new ArrayList<>();
         int countLoading = 0;
 
         // Simulando os Pages Requests
@@ -62,7 +63,7 @@ public class GerenciadorBuffer {
                     removerLRU();
                     adicionarNaMemoria(bloco);
                     adicionarNaLRU(pageID);
-                    logBuffer.add("Nova pagina adicionada em memoria...");
+                    logBuffer.add("Nova pagina adicionada em memoria e LRU devolvido ao disco...");
 
                 } else {
                     logBuffer.add("Memoria possui espaco disponivel, iniciando alocacao...");
@@ -105,8 +106,11 @@ public class GerenciadorBuffer {
         for (int i = 0; i < memoria.length; i++) {
             BlocoDado dado = memoria[i];
 
-            if(dado.getIdArquivo() == id.getIdFile() && dado.getIdBloco() == id.getIdBloco())
+            if(dado.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(dado.getIdBloco()) == id.getIdBlocoAsInt()) {
+                ga.devolverBlocoAoDisco(id.getIdFileAsInt(), id.getIdBlocoAsInt(), memoria[i]);
                 memoria[i] = null;
+                break;
+            }
 
         }
 
