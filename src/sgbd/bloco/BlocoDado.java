@@ -60,7 +60,8 @@ public class BlocoDado extends Bloco {
         int blocoID = getIntFrom3Bytes(getIdBloco());
 
         for (int indexTupla : getIndexesTuplas(getTuplaDirectory())) {
-            result.add(containerID + "-" + blocoID + "-" + indexTupla);
+            //TODO: quando precisar dos TupleID inserir aqui
+            result.add(containerID + "-" + blocoID);
         }
 
         return result;

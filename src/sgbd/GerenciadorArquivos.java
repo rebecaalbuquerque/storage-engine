@@ -8,9 +8,7 @@ import utils.PrintUtils;
 import utils.RAFUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
@@ -18,15 +16,17 @@ import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
 import static utils.FileUtils.*;
+import static utils.ListUtils.shuffleWithRepetition;
 import static utils.PrintUtils.*;
 import static utils.RAFUtils.*;
 
 public class GerenciadorArquivos {
 
     private int containerID;
-    private ArrayList<String> rowIDs = new ArrayList<>();
+    private ArrayList<String> rowIDs;
 
-    public GerenciadorArquivos() { }
+    public GerenciadorArquivos() {
+    }
 
     public void criarTabela(String arquivoEntrada) {
         containerID = getQuantidadeArquivosSaidaTabelas() + 1;
@@ -94,6 +94,8 @@ public class GerenciadorArquivos {
     }
 
     public void lerTabela(int tabelaID, boolean gerarPagesIds) {
+        rowIDs = new ArrayList<>();
+
         int qtdTotalTuplas = 0;
 
         if (tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()) {
@@ -108,7 +110,7 @@ public class GerenciadorArquivos {
 
         printAdditionalInformation("Quantidade de Bloco de Dados = " + dados.size());
 
-        if(gerarPagesIds){
+        if (gerarPagesIds) {
 
             for (BlocoDado d : dados) {
                 rowIDs.addAll(d.getRowIDs());
@@ -130,10 +132,10 @@ public class GerenciadorArquivos {
 
     }
 
-    public void gerarPageIDs(){
+    public void gerarPageIDs() {
         printLoadingInformation("Iniciando geração de PageIDs a partir de todas as tabelas existentes...\n");
 
-        if(getQuantidadeArquivosSaidaTabelas() == 0){
+        if (getQuantidadeArquivosSaidaTabelas() == 0) {
             printError("Não existe tabela na pasta de saída.");
         }
 
@@ -147,25 +149,25 @@ public class GerenciadorArquivos {
 
     }
 
-    public BlocoDado buscarBloco(int idTabela, int idBloco){
+    public BlocoDado buscarBloco(int idTabela, int idBloco) {
         File file = buscarTabela(idTabela);
 
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
 
-        return new BlocoDado(RAFUtils.lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO));
+        return new BlocoDado(RAFUtils.lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO), TAMANHO_BLOCO));
     }
 
-    public void devolverBlocoAoDisco(int idTabela, int idBloco, BlocoDado bloco){
+    public void devolverBlocoAoDisco(int idTabela, int idBloco, BlocoDado bloco) {
         File file = buscarTabela(idTabela);
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
-        escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO));
+        escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO));
     }
 
-    public void printarBloco(int idTabela, int idBloco){
+    public void printarBloco(int idTabela, int idBloco) {
         File file = buscarTabela(idTabela);
 
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
-        printResultData(new BlocoDado(lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco*TAMANHO_BLOCO), TAMANHO_BLOCO)).toString(controle));
+        printResultData(new BlocoDado(lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO), TAMANHO_BLOCO)).toString(controle));
     }
 
     private void escreverRowIDs(ArrayList<String> rowIDs) {
@@ -174,9 +176,9 @@ public class GerenciadorArquivos {
 
         escreverEmArquivo(file, rowIDs);
 
-        Collections.shuffle(rowIDs);
+        //Collections.shuffle(rowIDs);
 
-        escreverEmArquivo(fileShuffled, rowIDs);
+        escreverEmArquivo(fileShuffled, shuffleWithRepetition(rowIDs));
     }
 
     private BlocoControle carregarBlocoControle(File file) {

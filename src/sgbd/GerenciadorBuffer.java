@@ -20,15 +20,14 @@ public class GerenciadorBuffer {
     private BlocoDado[] memoria;
     private PageID[] LRU;
     private File log;
-    private ArrayList<String> logBuffer;
 
     public GerenciadorBuffer() {
         PrintUtils.printLoadingInformation("Iniciando o Log do Gerenciador de Buffer...\n");
         log = new File(LOG_BUFFER.path + ".txt");
     }
 
-    public void init(ArrayList<String> rowIDs, GerenciadorArquivos ga){
-        this.logBuffer = new ArrayList<>();
+    public void init(ArrayList<String> rowIDs, GerenciadorArquivos ga) {
+        ArrayList<String> logBuffer = new ArrayList<>();
         this.ga = ga;
         this.memoria = new BlocoDado[TAMANHO_MEMORIA];
         this.LRU = new PageID[TAMANHO_MEMORIA];
@@ -39,14 +38,14 @@ public class GerenciadorBuffer {
             countLoading++;
             double percent = (double) countLoading / rowIDs.size();
 
-            if(percent == 0.25 || percent == 0.50 || percent == 0.75 || percent == 1.0)
-                PrintUtils.printLoadingInformation(percent*100 + "% das Requisições foram finalizadas...");
+            if (percent == 0.1 || percent == 0.25 || percent == 0.50 || percent == 0.75 || percent == 1.0)
+                PrintUtils.printLoadingInformation(percent * 100 + "% das Requisições foram finalizadas...");
 
             PageID pageID = new PageID(rowID);
             logBuffer.add(">> Iniciando novo Page Request - PageID: " + pageID.getIdFileAsInt() + "-" + pageID.getIdBlocoAsInt());
             int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(pageID);
 
-            if(posicaoBlocoMemoria > -1){
+            if (posicaoBlocoMemoria > -1) {
 
                 hit++;
                 logBuffer.add("HIT - Pagina em memoria, iniciando swap...");
@@ -58,7 +57,7 @@ public class GerenciadorBuffer {
                 logBuffer.add("MISS - Iniciando recuperacao do Bloco em disco...");
                 BlocoDado bloco = getBlocoEmDisco(pageID.getIdFileAsInt(), pageID.getIdBlocoAsInt());
 
-                if(isMemoriaFull()){
+                if (isMemoriaFull()) {
                     logBuffer.add("Memoria cheia, iniciando retirada do LRU...");
                     removerLRU();
                     adicionarNaMemoria(bloco);
@@ -78,7 +77,13 @@ public class GerenciadorBuffer {
 
         }
 
-        logBuffer.add(0, "Quantidade de Pages Requests: " + rowIDs.size() + "\n" + "Quantidade de HIT: " + hit + "\n" + "Quantidade de MISS: " + miss + "\n" + "Taxa de hit: " + getTaxaHit() + "\n------------\n");
+        logBuffer.add(0,
+                "Tamanho da memoria: " + TAMANHO_MEMORIA + "\n" +
+                        "Quantidade de Pages Requests: " + rowIDs.size() + "\n" +
+                        "Quantidade de HIT: " + hit + "\n" +
+                        "Quantidade de MISS: " + miss + "\n" +
+                        "Taxa de hit: " + getTaxaHit() +
+                        "\n------------\n");
 
         FileUtils.escreverEmArquivo(log, logBuffer);
 
@@ -86,27 +91,27 @@ public class GerenciadorBuffer {
 
     /**
      * Coloca PageID de indice posicaoAtualMemoria no começo do array da LRU
-     * */
-    private void atualizarPosicoesLRU(int posicaoAtualMemoria){
+     */
+    private void atualizarPosicoesLRU(int posicaoAtualMemoria) {
         SwapUtils.swap(LRU, 0, posicaoAtualMemoria);
     }
 
     /**
      * Remove elemento menos utilizado. Quando o elemento menos utilizado sai, o Bloco com o PageID dele sai da memória também
-     * */
-    private void removerLRU(){
+     */
+    private void removerLRU() {
         PageID id = LRU[LRU.length - 1];
-        LRU[LRU.length -1] = null;
+        LRU[LRU.length - 1] = null;
         removerBlocoEmMemoria(id);
     }
 
-    private void removerBlocoEmMemoria(PageID id){
+    private void removerBlocoEmMemoria(PageID id) {
 
 
         for (int i = 0; i < memoria.length; i++) {
-            BlocoDado dado = memoria[i];
+            BlocoDado bloco = memoria[i];
 
-            if(dado.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(dado.getIdBloco()) == id.getIdBlocoAsInt()) {
+            if (bloco.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(bloco.getIdBloco()) == id.getIdBlocoAsInt()) {
                 ga.devolverBlocoAoDisco(id.getIdFileAsInt(), id.getIdBlocoAsInt(), memoria[i]);
                 memoria[i] = null;
                 break;
@@ -118,8 +123,8 @@ public class GerenciadorBuffer {
 
     /**
      * Adiciona novo elemento na esquerda do array LRU e shifitando para direita os outros elementos
-     * */
-    private void adicionarNaLRU(PageID novoPageID){
+     */
+    private void adicionarNaLRU(PageID novoPageID) {
         PageID[] novoArray = new PageID[LRU.length];
         int countArray = 0;
 
@@ -138,13 +143,13 @@ public class GerenciadorBuffer {
 
     /**
      * Adiciona elemento na memória
-     * */
-    private void adicionarNaMemoria(BlocoDado novoloco){
+     */
+    private void adicionarNaMemoria(BlocoDado novoBloco) {
 
         for (int i = 0; i < memoria.length; i++) {
 
-            if(memoria[i] == null){
-                memoria[i] = novoloco;
+            if (memoria[i] == null) {
+                memoria[i] = novoBloco;
                 return;
             }
 
@@ -152,16 +157,18 @@ public class GerenciadorBuffer {
 
     }
 
-    private int getPosicaoBlocoEmMemoria(PageID id){
+    private int getPosicaoBlocoEmMemoria(PageID id) {
         int result = -1;
 
         for (int i = 0; i < memoria.length; i++) {
             BlocoDado bloco = memoria[i];
 
-            if(bloco != null){
+            if (bloco != null) {
 
-                if(bloco.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(bloco.getIdBloco()) == id.getIdBlocoAsInt())
+                if (bloco.getIdArquivo() == id.getIdFile() && getIntFrom3Bytes(bloco.getIdBloco()) == id.getIdBlocoAsInt()) {
                     result = i;
+                    return result;
+                }
 
             }
 
@@ -171,10 +178,10 @@ public class GerenciadorBuffer {
         return result;
     }
 
-    private boolean isMemoriaFull(){
+    private boolean isMemoriaFull() {
 
         for (BlocoDado bloco : memoria) {
-            if(bloco == null)
+            if (bloco == null)
                 return false;
         }
 
@@ -182,12 +189,12 @@ public class GerenciadorBuffer {
 
     }
 
-    private BlocoDado getBlocoEmDisco(int idFile, int idBloco){
+    private BlocoDado getBlocoEmDisco(int idFile, int idBloco) {
         return ga.buscarBloco(idFile, idBloco);
     }
 
-    private double getTaxaHit(){
-        return (double)hit / (hit + miss);
+    private double getTaxaHit() {
+        return (double) hit / (hit + miss);
     }
 
 }
