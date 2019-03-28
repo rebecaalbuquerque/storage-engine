@@ -10,9 +10,12 @@ public class ListUtils {
         ArrayList<String> sorted = new ArrayList<>();
         int length = rows.size();
         Random rnd = new Random();
+        double percent = (double)3/100;
+        int qtdTuplas = getMediaTuplasPorBloco(rows);
+        int qtdBlocos = (int) (rows.size() * percent);
 
-        // Sera criada n listas de tamanho 621
-        ArrayList<ArrayList<String>> rowsDivididos = criarListasMenores(rows, 621);
+        // Sera criada n listas de tamanho qtdTuplas*qtdBlocos
+        ArrayList<ArrayList<String>> rowsDivididos = criarListasMenores(rows, qtdTuplas * qtdBlocos);
         Collections.shuffle(rowsDivididos);
 
         ArrayList<String> novoRows = new ArrayList<>();
@@ -38,6 +41,29 @@ public class ListUtils {
         }
 
         return sorted;
+    }
+
+    private static int getMediaTuplasPorBloco(ArrayList<String> rows) {
+        ArrayList<Integer> qtdTuplas = new ArrayList<>();
+        String blocoIdAtual = rows.get(0).split("-")[1];
+        int count = 0;
+
+        for (String row : rows) {
+
+            String[] array = row.split("-");
+
+            if (blocoIdAtual.equals(array[1])) {
+                count++;
+            } else {
+                blocoIdAtual = array[1];
+                qtdTuplas.add(count);
+                count = 0;
+            }
+
+        }
+
+        Double average = qtdTuplas.stream().mapToDouble(val -> val).average().orElse(0.0);
+        return average.intValue();
     }
 
     private static <T> ArrayList<ArrayList<T>> criarListasMenores(ArrayList<T> list, int L) {

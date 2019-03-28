@@ -84,15 +84,15 @@ public class FileUtils {
 
                 switch (tipoArquivo){
                     case SAIDA_TABELAS:
-                        PrintUtils.printLoadingInformation("Criando novo container: " + file.getName());
+                        PrintUtils.printLoadingInformation("Criando novo container: " + file.getName() + "...");
                         break;
 
                     case ROW_IDS:
-                        PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName());
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName() + "...");
                         break;
 
                     case LOG_BUFFER:
-                        PrintUtils.printLoadingInformation("Criando novo arquivo de Log Buffer: " + file.getName());
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Log Buffer: " + file.getName() + "...");
                 }
 
             }

@@ -7,8 +7,11 @@ import utils.FileUtils;
 import utils.PrintUtils;
 import utils.RAFUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
@@ -128,6 +131,7 @@ public class GerenciadorArquivos {
         }
 
         printAdditionalInformation("Quantidade total de tuplas da Tabela " + tabelaID + " = " + qtdTotalTuplas);
+        printAdditionalInformation("Quantidade total de Blocos da Tabela " + tabelaID + " = " + dados.size());
 
 
     }
@@ -162,7 +166,7 @@ public class GerenciadorArquivos {
     public void devolverBlocoAoDisco(int idTabela, int idBloco, BlocoDado bloco) {
         File file = buscarTabela(idTabela);
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
-        //escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO));
+        escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO));
     }
 
     public void printarBloco(int idTabela, int idBloco) {
@@ -177,9 +181,6 @@ public class GerenciadorArquivos {
         File fileShuffled = criarArquivo(-1, TipoArquivo.ROW_IDS_SHUFFLED);
 
         escreverEmArquivo(file, rowIDs);
-
-        /*Collections.shuffle(rowIDs);
-        escreverEmArquivo(fileShuffled, rowIDs);*/
 
         escreverEmArquivo(fileShuffled, shuffleWithRepetition(rowIDs));
     }

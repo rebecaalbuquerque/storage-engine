@@ -18,7 +18,6 @@ public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     private static GerenciadorArquivos ga;
-    private static GerenciadorBuffer gb;
 
     public static void main(String[] args) {
 
@@ -27,7 +26,7 @@ public class Main {
         int opcao;
 
         do {
-            System.out.println("### MENU SGBD ###");
+            System.out.println("\n### MENU SGBD ###");
             System.out.println("[1]\t Criar nova tabela");
             System.out.println("[2]\t Ler tabela");
             System.out.println("[3]\t Gerar Pages IDs");
@@ -127,7 +126,7 @@ public class Main {
     private static void iniciarSimulacaoBuffer(){
         File file = criarArquivo(-1, TipoArquivo.ROW_IDS_SHUFFLED);
 
-        gb = new GerenciadorBuffer();
+        GerenciadorBuffer gb = new GerenciadorBuffer();
 
         gb.init(getDadosArquivo(file), ga);
 

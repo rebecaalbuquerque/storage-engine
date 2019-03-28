@@ -116,7 +116,7 @@ public class BlocoDado extends Bloco {
         return getShortFromBytes(tamanhoTuplaDirectory)/2;
     }
 
-    public void resetarId(){ contador = 0; }
+    public void resetarId(){ contador = -1; }
 
     private ArrayList<byte[]> getListaTuplas(){
         int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
