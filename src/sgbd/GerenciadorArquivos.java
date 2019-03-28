@@ -23,7 +23,7 @@ import static utils.RAFUtils.*;
 public class GerenciadorArquivos {
 
     private int containerID;
-    private ArrayList<String> rowIDs;
+    private ArrayList<String> rowIDs = new ArrayList<>();
 
     public GerenciadorArquivos() {
     }
@@ -94,7 +94,6 @@ public class GerenciadorArquivos {
     }
 
     public void lerTabela(int tabelaID, boolean gerarPagesIds) {
-        rowIDs = new ArrayList<>();
 
         int qtdTotalTuplas = 0;
 
@@ -113,6 +112,7 @@ public class GerenciadorArquivos {
         if (gerarPagesIds) {
 
             for (BlocoDado d : dados) {
+                qtdTotalTuplas += d.getQuantidadeTuplas();
                 rowIDs.addAll(d.getRowIDs());
             }
 
@@ -125,9 +125,9 @@ public class GerenciadorArquivos {
                 printResultData(d.toString(controle));
             }
 
-            printAdditionalInformation("Quantidade total de tuplas da Tabela " + tabelaID + " = " + qtdTotalTuplas);
-
         }
+
+        printAdditionalInformation("Quantidade total de tuplas da Tabela " + tabelaID + " = " + qtdTotalTuplas);
 
 
     }
@@ -145,6 +145,8 @@ public class GerenciadorArquivos {
 
         escreverRowIDs(rowIDs);
 
+        rowIDs = new ArrayList<>();
+
         printLoadingInformation("PageIDs gerados com sucesso!");
 
     }
@@ -160,7 +162,7 @@ public class GerenciadorArquivos {
     public void devolverBlocoAoDisco(int idTabela, int idBloco, BlocoDado bloco) {
         File file = buscarTabela(idTabela);
         BlocoControle controle = new BlocoControle(lerBlocoControle(file));
-        escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO));
+        //escreverArquivo(file, bloco.getInformacoesCompletas(), controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO));
     }
 
     public void printarBloco(int idTabela, int idBloco) {
@@ -176,7 +178,8 @@ public class GerenciadorArquivos {
 
         escreverEmArquivo(file, rowIDs);
 
-        //Collections.shuffle(rowIDs);
+        /*Collections.shuffle(rowIDs);
+        escreverEmArquivo(fileShuffled, rowIDs);*/
 
         escreverEmArquivo(fileShuffled, shuffleWithRepetition(rowIDs));
     }
