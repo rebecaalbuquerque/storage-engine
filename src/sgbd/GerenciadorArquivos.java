@@ -19,7 +19,7 @@ import static utils.ConversorUtils.getIntFrom3Bytes;
 import static utils.ConversorUtils.getIntFromBytes;
 import static utils.DiretorioUtils.getQuantidadeArquivosSaidaTabelas;
 import static utils.FileUtils.*;
-import static utils.ListUtils.shuffleWithRepetition;
+import static utils.ShuffleUtils.shuffleWithRepetition;
 import static utils.PrintUtils.*;
 import static utils.RAFUtils.*;
 

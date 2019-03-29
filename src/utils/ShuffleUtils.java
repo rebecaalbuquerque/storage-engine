@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class ListUtils {
+public class ShuffleUtils {
 
     public static ArrayList<String> shuffleWithRepetition(ArrayList<String> rows) {
         ArrayList<String> sorted = new ArrayList<>();
         int length = rows.size();
         Random rnd = new Random();
-        double percent = (double)3/100;
+        double percent = (double)1/100;
         int qtdTuplas = getMediaTuplasPorBloco(rows);
         int qtdBlocos = (int) (rows.size() * percent);
 
