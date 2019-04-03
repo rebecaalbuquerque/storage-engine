@@ -1,6 +1,6 @@
 package main;
 
-import gui.MyGUIForm;
+import gui.JoinForm;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ public class MainGUI {
         SwingUtilities.invokeLater(() -> {
             ArrayList<String> lista = new ArrayList<>();
 
-            lista.add("Arquivo1.txt");
-            lista.add("Arquivo2.txt");
-            lista.add("Arquivo3.txt");
+            lista.add("tabela1.txt");
+            lista.add("tabela2.txt");
+            lista.add("tabela3.txt");
 
-            MyGUIForm myGUI = new MyGUIForm(lista);
-            myGUI.setVisible(true);
+            JoinForm joinForm = new JoinForm(lista);
+            joinForm.setVisible(true);
 
         });
 
