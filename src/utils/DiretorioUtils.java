@@ -36,6 +36,10 @@ public class DiretorioUtils {
         return System.getProperty("user.dir") + DIRETORIO_SAIDA_LOG_BUFFER;
     }
 
+    public static String getDiretorioSaidaBuckets(){
+        return System.getProperty("user.dir") + DIRETORIO_SAIDA_BUCKETS;
+    }
+
     /**
      * Verificando quantos arquivos existem no diretório de entrada
      * */

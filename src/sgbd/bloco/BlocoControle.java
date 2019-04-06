@@ -2,9 +2,12 @@ package sgbd.bloco;
 
 import utils.PrintUtils;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import static constants.ConstantesRegex.APENAS_NUMERO;
+import static constants.ConstantesRegex.CARACTER_ESPECIAL;
 import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.StatusContainer.STATUS_0;
@@ -157,6 +160,18 @@ public class BlocoControle extends Bloco {
 
     public void setProximoBloco(int proximoBloco) {
         this.proximoBloco = intToArrayByte(proximoBloco, 4);
+    }
+
+    public ArrayList<String> getColunas(){
+        String[] arrayColunas = bytesToString(getDadosHeader()).split("\\|");
+        ArrayList<String> result = new ArrayList<>();
+
+        for (String arrayColuna : arrayColunas) {
+            String coluna = arrayColuna.replaceAll(APENAS_NUMERO, "");
+            result.add(coluna.substring(0, coluna.length() - 1));
+        }
+
+        return result;
     }
 
     private void setDadosHeader(byte[] dadosHeader) { this.dadosHeader = dadosHeader; }

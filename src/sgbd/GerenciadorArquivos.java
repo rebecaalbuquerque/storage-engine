@@ -176,6 +176,14 @@ public class GerenciadorArquivos {
         printResultData(new BlocoDado(lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO), TAMANHO_BLOCO)).toString(controle));
     }
 
+    public BlocoControle carregarBlocoControle(int idTabela) {
+        File file = buscarTabela(idTabela);
+        PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
+        byte[] dadosControle = lerBlocoControle(file);
+
+        return new BlocoControle(dadosControle);
+    }
+
     private void escreverRowIDs(ArrayList<String> rowIDs) {
         File file = criarArquivo(-1, TipoArquivo.ROW_IDS);
         File fileShuffled = criarArquivo(-1, TipoArquivo.ROW_IDS_SHUFFLED);

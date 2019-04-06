@@ -8,7 +8,8 @@ public enum TipoArquivo {
     SAIDA_TABELAS(1, getDiretorioSaidaTabelas() + "/tabela"),
     ROW_IDS(2, getDiretorioSaidaRowIDs() + "/rowIDs"),
     ROW_IDS_SHUFFLED(3, getDiretorioSaidaRowIDs() + "/rowIDs-shuffled"),
-    LOG_BUFFER(4, getDiretorioSaidaBuffer() + "/buffer");
+    LOG_BUFFER(4, getDiretorioSaidaBuffer() + "/buffer"),
+    BUCKET(4, getDiretorioSaidaBuckets() + "/buffer");
 
     public int id;
     public String path;
