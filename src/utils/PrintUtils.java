@@ -12,7 +12,7 @@ public class PrintUtils {
         System.out.println("\u001B[35m" + texto + RESET);
     }
 
-    public static void printAdditionaInformation(String texto){
+    public static void printAdditionalInformation(String texto){
         System.out.println("\u001B[32m" + texto + RESET);
     }
 

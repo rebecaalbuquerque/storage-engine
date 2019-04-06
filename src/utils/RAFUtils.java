@@ -70,16 +70,4 @@ public class RAFUtils {
         return result;
     }
 
-    static void limparArquivo(File file) {
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile(file,"rw");
-            raf.setLength(0);
-            raf.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

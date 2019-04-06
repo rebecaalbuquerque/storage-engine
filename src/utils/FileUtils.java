@@ -1,24 +1,100 @@
 package utils;
 
-import java.io.File;
-import java.io.IOException;
+import enums.TipoArquivo;
 
-import static utils.RAFUtils.limparArquivo;
+import java.io.*;
+import java.util.ArrayList;
+
+import static utils.DiretorioUtils.*;
 
 public class FileUtils {
 
+    public static void escreverEmArquivo(File file, ArrayList<String> dados){
+        FileWriter fw = null;
+        BufferedWriter bw = null;
 
-    public static File criarArquivo(int idTabela){
-        String path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+        try {
+
+            if (file != null) {
+                fw = new FileWriter(file);
+                bw = new BufferedWriter(fw);
+
+                for (String dado : dados) {
+                    bw.write(dado);
+                    bw.newLine();
+                }
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+
+                if (bw != null) {
+                    bw.close();
+                    fw.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static ArrayList<String> getDadosArquivo(File file){
+        FileReader r;
+        BufferedReader b;
+        String linha = "";
+        ArrayList<String> dados = new ArrayList<>();
+
+        try {
+
+            r = new FileReader(file);
+            b = new BufferedReader(r);
+
+            while ((linha = b.readLine()) != null) {
+                dados.add(linha);
+            }
+
+            b.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return dados;
+    }
+
+    public static File criarArquivo(int idTabela, TipoArquivo tipoArquivo){
+
+        String path;
+
+        if(tipoArquivo == TipoArquivo.SAIDA_TABELAS)
+            path = tipoArquivo.path + idTabela + ".txt";
+        else
+            path = tipoArquivo.path + ".txt";
 
         File file = new File(path);
 
         try {
 
             if(file.createNewFile()){
-                System.out.println("Criando novo container: " + file.getName());
-            } else {
-                limparArquivo(file);
+
+                switch (tipoArquivo){
+                    case SAIDA_TABELAS:
+                        PrintUtils.printLoadingInformation("Criando novo container: " + file.getName() + "...");
+                        break;
+
+                    case ROW_IDS:
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Row ID: " + file.getName() + "...");
+                        break;
+
+                    case LOG_BUFFER:
+                        PrintUtils.printLoadingInformation("Criando novo arquivo de Log Buffer: " + file.getName() + "...");
+                }
+
             }
 
             return file;
@@ -29,9 +105,8 @@ public class FileUtils {
         }
     }
 
-    public static File buscarArquivo(int idTabela){
-        String path = DiretorioUtils.getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
-
+    public static File buscarTabela(int idTabela){
+        String path = getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
         return new File(path);
     }
 

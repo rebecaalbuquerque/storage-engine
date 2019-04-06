@@ -51,6 +51,10 @@ public class BlocoControle extends Bloco {
     }
 
     /* Utilitários */
+    public int getTamanhoTotal(){
+        return dadosHeader.length + 11;
+    }
+
     public byte[] getInformacoesCompletas(){
         byte[] result = new byte[2 + tamanhoBloco.length + proximoBloco.length + tamanhoHeader.length + dadosHeader.length];
 
