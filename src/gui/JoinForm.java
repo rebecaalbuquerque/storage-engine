@@ -1,7 +1,6 @@
 package gui;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 public class JoinForm extends JFrame {
@@ -22,6 +21,10 @@ public class JoinForm extends JFrame {
 
     private JList<String> listaIndices1;
     private JList<String> listaIndices2;
+    private JPanel panelSeparator1;
+    private JPanel panelBtnJoin;
+    private JTextField txtTamanhoMemoriaHHJ;
+    private JPanel panelSeparator2;
 
     public JoinForm(){
         init(null);
@@ -34,7 +37,7 @@ public class JoinForm extends JFrame {
     private void init(ArrayList<String> lista){
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle("Hash Join");
+        setTitle("Hybrid Hash Join");
 
         if(lista != null)
             setupTabelas(lista);
@@ -64,7 +67,7 @@ public class JoinForm extends JFrame {
 
     private void setupBtnAbrirArquivo(){
         btnJoin.addActionListener(
-                e -> System.out.println("Arquivo selecionado: " + listaIndices1.getSelectedValue())
+                e -> System.out.println("Join")
         );
     }
 }
