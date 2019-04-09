@@ -18,7 +18,7 @@ public class GerenciadorBuffer {
     private int hit;
     private GerenciadorArquivos ga;
     private BlocoDado[] memoria;
-    private PageID[] LRU;
+    private RowID[] LRU;
     private File log;
 
     public GerenciadorBuffer() {
@@ -26,24 +26,61 @@ public class GerenciadorBuffer {
         log = new File(LOG_BUFFER.path + ".txt");
     }
 
+    public GerenciadorBuffer(GerenciadorArquivos ga){
+        this.ga = ga;
+        this.memoria = new BlocoDado[TAMANHO_MEMORIA];
+        this.LRU = new RowID[TAMANHO_MEMORIA];
+    }
+
+    public BlocoDado getBloco(RowID id, GerenciadorArquivos ga){
+        int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(id);
+
+        if (posicaoBlocoMemoria > -1) {
+
+            hit++;
+            atualizarPosicoesLRU(posicaoBlocoMemoria);
+
+            return memoria[posicaoBlocoMemoria];
+
+        } else {
+
+            miss++;
+            BlocoDado bloco = getBlocoEmDisco(id.getIdFileAsInt(), id.getIdBlocoAsInt());
+
+            if (isMemoriaFull()) {
+                removerLRU();
+                adicionarNaMemoria(bloco);
+                adicionarNaLRU(id);
+
+            } else {
+                adicionarNaMemoria(bloco);
+                adicionarNaLRU(id);
+            }
+
+            return bloco;
+
+        }
+    }
+
+    // Apenas para testar o Buffer
     public void init(ArrayList<String> rowIDs, GerenciadorArquivos ga) {
         ArrayList<String> logBuffer = new ArrayList<>();
         this.ga = ga;
         this.memoria = new BlocoDado[TAMANHO_MEMORIA];
-        this.LRU = new PageID[TAMANHO_MEMORIA];
+        this.LRU = new RowID[TAMANHO_MEMORIA];
         int countLoading = 0;
 
         // Simulando os Pages Requests
-        for (String rowID : rowIDs) {
+        for (String id : rowIDs) {
             countLoading++;
             double percent = (double) countLoading / rowIDs.size();
 
             if (percent == 0.1 || percent == 0.25 || percent == 0.50 || percent == 0.75 || percent == 1.0)
                 PrintUtils.printLoadingInformation(percent * 100 + "% das Requisições foram finalizadas...");
 
-            PageID pageID = new PageID(rowID);
-            logBuffer.add(">> Iniciando novo Page Request - PageID: " + pageID.getIdFileAsInt() + "-" + pageID.getIdBlocoAsInt());
-            int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(pageID);
+            RowID rowID = new RowID(id);
+            logBuffer.add(">> Iniciando novo Page Request - PageID: " + rowID.getIdFileAsInt() + "-" + rowID.getIdBlocoAsInt());
+            int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(rowID);
 
             if (posicaoBlocoMemoria > -1) {
 
@@ -55,19 +92,19 @@ public class GerenciadorBuffer {
 
                 miss++;
                 logBuffer.add("MISS - Iniciando recuperacao do Bloco em disco...");
-                BlocoDado bloco = getBlocoEmDisco(pageID.getIdFileAsInt(), pageID.getIdBlocoAsInt());
+                BlocoDado bloco = getBlocoEmDisco(rowID.getIdFileAsInt(), rowID.getIdBlocoAsInt());
 
                 if (isMemoriaFull()) {
                     logBuffer.add("Memoria cheia, iniciando retirada do LRU...");
                     removerLRU();
                     adicionarNaMemoria(bloco);
-                    adicionarNaLRU(pageID);
+                    adicionarNaLRU(rowID);
                     logBuffer.add("Nova pagina adicionada em memoria e LRU devolvido ao disco...");
 
                 } else {
                     logBuffer.add("Memoria possui espaco disponivel, iniciando alocacao...");
                     adicionarNaMemoria(bloco);
-                    adicionarNaLRU(pageID);
+                    adicionarNaLRU(rowID);
                     logBuffer.add("Nova pagina adicionada em memoria...");
                 }
 
@@ -100,12 +137,12 @@ public class GerenciadorBuffer {
      * Remove elemento menos utilizado. Quando o elemento menos utilizado sai, o Bloco com o PageID dele sai da memória também
      */
     private void removerLRU() {
-        PageID id = LRU[LRU.length - 1];
+        RowID id = LRU[LRU.length - 1];
         LRU[LRU.length - 1] = null;
         removerBlocoEmMemoria(id);
     }
 
-    private void removerBlocoEmMemoria(PageID id) {
+    private void removerBlocoEmMemoria(RowID id) {
 
 
         for (int i = 0; i < memoria.length; i++) {
@@ -124,8 +161,8 @@ public class GerenciadorBuffer {
     /**
      * Adiciona novo elemento na esquerda do array LRU e shifitando para direita os outros elementos
      */
-    private void adicionarNaLRU(PageID novoPageID) {
-        PageID[] novoArray = new PageID[LRU.length];
+    private void adicionarNaLRU(RowID novoPageID) {
+        RowID[] novoArray = new RowID[LRU.length];
         int countArray = 0;
 
         novoArray[0] = novoPageID;
@@ -157,7 +194,7 @@ public class GerenciadorBuffer {
 
     }
 
-    private int getPosicaoBlocoEmMemoria(PageID id) {
+    private int getPosicaoBlocoEmMemoria(RowID id) {
         int result = -1;
 
         for (int i = 0; i < memoria.length; i++) {

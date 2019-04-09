@@ -1,6 +1,11 @@
 package sgbd;
 
+import enums.TipoArquivo;
+
 import java.util.ArrayList;
+
+import static utils.FileUtils.criarArquivo;
+import static utils.FileUtils.getDadosArquivo;
 
 public class HHJ {
 
@@ -9,7 +14,18 @@ public class HHJ {
 
     public HHJ() {}
 
-    public void carregarTabela(){
+    public void init(){
+        gerarTabelas();
+        // gerar buckets (usando a função hash)
+        //
+    }
+
+    public void gerarTabelas(){
+        ArrayList<String> rowIds = getDadosArquivo(criarArquivo(-1, TipoArquivo.ROW_IDS));
+
+        for (String id : rowIds) {
+
+        }
 
     }
 
