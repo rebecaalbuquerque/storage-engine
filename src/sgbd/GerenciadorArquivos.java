@@ -178,6 +178,10 @@ public class GerenciadorArquivos {
 
     public BlocoControle carregarBlocoControle(int idTabela) {
         File file = buscarTabela(idTabela);
+        return carregarBlocoControle(file);
+    }
+
+    private BlocoControle carregarBlocoControle(File file) {
         PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
         byte[] dadosControle = lerBlocoControle(file);
 
@@ -191,13 +195,6 @@ public class GerenciadorArquivos {
         escreverEmArquivo(file, rowIDs);
 
         escreverEmArquivo(fileShuffled, shuffleWithRepetition(rowIDs));
-    }
-
-    private BlocoControle carregarBlocoControle(File file) {
-        PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
-        byte[] dadosControle = lerBlocoControle(file);
-
-        return new BlocoControle(dadosControle);
     }
 
     private ArrayList<BlocoDado> carregarBlocosDados(File file, int start, int ultimoBlocoID) {

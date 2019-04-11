@@ -19,7 +19,10 @@ public class RowID {
 
         setIdFile(intToArrayByte(Integer.parseInt(idArray[0]), 1)[0]);
         setIdBloco(intToArrayByte(Integer.parseInt(idArray[1]), 3));
-        setIdTupla(intToArrayByte(Integer.parseInt(idArray[2]), 2));
+
+        if(idArray.length > 2){
+            setIdTupla(intToArrayByte(Integer.parseInt(idArray[2]), 2));
+        }
     }
 
     public byte[] getIdTupla() {

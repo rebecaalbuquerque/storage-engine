@@ -32,7 +32,7 @@ public class GerenciadorBuffer {
         this.LRU = new RowID[TAMANHO_MEMORIA];
     }
 
-    public BlocoDado getBloco(RowID id, GerenciadorArquivos ga){
+    public BlocoDado getBloco(RowID id){
         int posicaoBlocoMemoria = getPosicaoBlocoEmMemoria(id);
 
         if (posicaoBlocoMemoria > -1) {

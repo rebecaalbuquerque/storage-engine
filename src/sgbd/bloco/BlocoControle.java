@@ -2,12 +2,10 @@ package sgbd.bloco;
 
 import utils.PrintUtils;
 
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static constants.ConstantesRegex.APENAS_NUMERO;
-import static constants.ConstantesRegex.CARACTER_ESPECIAL;
 import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.StatusContainer.STATUS_0;

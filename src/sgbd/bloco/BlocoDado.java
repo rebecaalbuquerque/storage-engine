@@ -14,6 +14,7 @@ import static utils.ConversorUtils.*;
 @SuppressWarnings("Duplicates")
 public class BlocoDado extends Bloco {
 
+    public static final int QTD_HEADERS = 9;
     private static int contador = -1;
 
     /* Informações de um bloco de dados */
@@ -34,9 +35,9 @@ public class BlocoDado extends Bloco {
         setTipo(intToArrayByte(TIPO_1.valor, 1)[0]);
 
         /* Dados */
-        this.dados = new byte[TAMANHO_BLOCO - 9];
+        this.dados = new byte[TAMANHO_BLOCO - QTD_HEADERS];
         setTamanhoTuplasDisponivel(this.dados.length);
-        setUltimoEnderecoTupla(intToArrayByte(this.dados.length + 9, 2));
+        setUltimoEnderecoTupla(intToArrayByte(this.dados.length + QTD_HEADERS, 2));
 
     }
 
@@ -47,9 +48,9 @@ public class BlocoDado extends Bloco {
         setTamanhoTuplaDirectory(new byte[]{ bloco[5], bloco[6]});
         setUltimoEnderecoTupla(new byte[]{ bloco[7], bloco[8] });
 
-        this.dados = new byte[bloco.length - 9];
+        this.dados = new byte[bloco.length - QTD_HEADERS];
 
-        System.arraycopy(bloco, 9, this.dados, 0, this.dados.length);
+        System.arraycopy(bloco, QTD_HEADERS, this.dados, 0, this.dados.length);
 
     }
 
@@ -104,7 +105,7 @@ public class BlocoDado extends Bloco {
         setTamanhoTuplaDirectory(intToArrayByte(tamTuplaDirectory + 2, 2));
 
         // Inserindo no final do Tuple Directory os dados na nova tupla
-        for (int i = ultimoEndereco - novaTupla.length - 9; i < ultimoEndereco - 9; i++) {
+        for (int i = ultimoEndereco - novaTupla.length - QTD_HEADERS; i < ultimoEndereco - QTD_HEADERS; i++) {
             dados[i] = novaTupla[countIndexTuplas];
             countIndexTuplas++;
         }
@@ -117,7 +118,7 @@ public class BlocoDado extends Bloco {
 
     public void resetarId(){ contador = -1; }
 
-    private ArrayList<byte[]> getListaTuplas(){
+    public ArrayList<byte[]> getListaTuplas(){
         int[] indexesTuplas = getIndexesTuplas(getTuplaDirectory());
         ArrayList<byte[]> tuplas = new ArrayList<>();
 

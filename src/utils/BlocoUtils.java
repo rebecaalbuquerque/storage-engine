@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import static constants.ConstantesRegex.*;
+import static sgbd.bloco.BlocoDado.QTD_HEADERS;
 import static utils.ConversorUtils.*;
 
 public class BlocoUtils {
@@ -92,7 +93,7 @@ public class BlocoUtils {
             count++;
 
             if (count == 2) {
-                indexes.add(getShortFromBytes(directory) - 9);
+                indexes.add(getShortFromBytes(directory) - QTD_HEADERS);
                 directory = new byte[2];
                 count = 0;
             }
