@@ -1,6 +1,7 @@
 package sgbd;
 
 import sgbd.bloco.BlocoDado;
+import utils.BlocoUtils;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public class HHJ {
          return ga.carregarBlocoControle(idTabela).getColunas();
     }
 
-    public void gerarBuckets(int idTabela, int proximoBlocoLivre){
+    public void gerarBuckets(int idTabela, int proximoBlocoLivre, int indexAtributoJuncao){
         ArrayList<BlocoDado> buckets = new ArrayList<>();
 
         for (int i = 0; i < proximoBlocoLivre; i++) {
@@ -29,7 +30,8 @@ public class HHJ {
             ArrayList<byte[]> tuplas = bloco.getListaTuplas();
 
             for (byte[] tupla : tuplas) {
-
+                BlocoUtils.getDadosByIndexColuna(tupla, indexAtributoJuncao);
+                System.out.println(tupla);
             }
         }
     }

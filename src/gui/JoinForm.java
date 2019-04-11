@@ -59,6 +59,9 @@ public class JoinForm extends JFrame {
         setupComboBoxClick(cbTabela1, listaIndices1);
         setupComboBoxClick(cbTabela2, listaIndices2);
 
+        setupListIndiceClick(listaIndices1);
+        setupListIndiceClick(listaIndices2);
+
         add(rootPanel);
     }
 
@@ -84,6 +87,17 @@ public class JoinForm extends JFrame {
         );
     }
 
+    private void setupListIndiceClick(JList<String> jList){
+
+        jList.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseClicked(java.awt.event.MouseEvent mouseEvent){
+                System.out.println(jList.getSelectedValue());
+                join.gerarBuckets(1, 367, jList.getSelectedIndex());
+            }
+        });
+
+    }
+
     private void setupComboBoxClick(JComboBox<String> jComboBox, JList<String> jList){
         jComboBox.addActionListener(e ->
                 initValuesForComboBoxTabela(String.valueOf(jComboBox.getSelectedItem()), jList)
@@ -94,6 +108,8 @@ public class JoinForm extends JFrame {
         int id = Integer.parseInt(itemSelecionado.replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
 
         setupJList(join.buscarColunasTabelaById(id), jList);
+
+        //join.gerarBuckets(1, 367, indexSelected);
     }
 
     private void setupJList(ArrayList<String> lista, JList<String> jList){

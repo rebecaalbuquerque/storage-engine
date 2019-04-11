@@ -114,4 +114,53 @@ public class BlocoUtils {
         return new String[]{nomeColuna.substring(nomeColuna.length() - 1),  quantidadeColuna};
     }
 
+    /**
+     * Retorna os dados de uma coluna a partir do index da mesma
+     * */
+    public static byte[] getDadosByIndexColuna(byte[] tupla, int index){
+        int countColunas = 0;
+        int indexProximaColuna = 4;
+        int countTamanhoColunaAtual = 0;
+        int countResult = 0;
+        boolean foundColumn = false;
+        byte[] tamanhoColunaAtual = new byte[2];
+        byte[] result = new byte[0];
+
+        for (int i = 4; i < tupla.length; i++) {
+
+            // TODO: esse if tá errado
+            if(indexProximaColuna == i){
+                tamanhoColunaAtual[countTamanhoColunaAtual] = tupla[i];
+                countTamanhoColunaAtual++;
+            }
+
+            if(countTamanhoColunaAtual == 2){
+
+                indexProximaColuna = getShortFromBytes(tamanhoColunaAtual) + i + 1;
+
+                if(index == countColunas){
+                    result = new byte[getShortFromBytes(tamanhoColunaAtual)];
+                    foundColumn = true;
+                }
+
+                countTamanhoColunaAtual = 0;
+                countColunas++;
+
+            }
+
+            if(foundColumn){
+
+                result[countResult] = tupla[i];
+
+                if(indexProximaColuna == i){
+                    break;
+                }
+
+            }
+
+        }
+
+        return result;
+    }
+
 }
