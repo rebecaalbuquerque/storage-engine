@@ -4,7 +4,6 @@ import utils.PrintUtils;
 
 import java.util.ArrayList;
 
-import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.TipoBloco.TIPO_1;
 import static utils.BlocoUtils.getIndexesTuplas;
@@ -14,7 +13,7 @@ import static utils.ConversorUtils.*;
 @SuppressWarnings("Duplicates")
 public class BlocoDado extends Bloco {
 
-    public static final int QTD_HEADERS = 9;
+    public static final int QTD_HEADERS = 13;
     private static int contador = -1;
 
     /* Informações de um bloco de dados */
@@ -23,6 +22,10 @@ public class BlocoDado extends Bloco {
     private byte[] tamanhoTuplaDirectory = new byte[2];
     private byte[] ultimoEnderecoTupla = new byte[2];
     private byte[] dados; // tupla directory + tuplas
+
+    private byte[] idBucket = new byte[2];
+    private byte[] proximoBlocoBucket = new byte[2];
+
 
     private int tamanhoTuplasDisponivel;
 
@@ -47,6 +50,8 @@ public class BlocoDado extends Bloco {
         setTipo(bloco[4]);
         setTamanhoTuplaDirectory(new byte[]{ bloco[5], bloco[6]});
         setUltimoEnderecoTupla(new byte[]{ bloco[7], bloco[8] });
+        setIdBucket(new byte[]{ bloco[9], bloco[10] });
+        setProximoBlocoBucket(new byte[]{ bloco[11], bloco[12] });
 
         this.dados = new byte[bloco.length - QTD_HEADERS];
 
@@ -71,6 +76,10 @@ public class BlocoDado extends Bloco {
         inserirTupla(getTuplaFormatada(novaTupla));
     }
 
+    public void adicionarNovaTupla(byte[] novaTupla){
+        inserirTupla(novaTupla);
+    }
+
     public byte[] getInformacoesCompletas() {
         return concatenarArrays(
                 new ArrayList<byte[]>() {{
@@ -79,6 +88,8 @@ public class BlocoDado extends Bloco {
                     add( new byte[]{getTipo()} );
                     add( getTamanhoTuplaDirectory() );
                     add( getUltimoEnderecoTupla() );
+                    add( getIdBucket() );
+                    add( getProximoBlocoBucket() );
                     add( getDados() );
                 }}
         );
@@ -195,6 +206,15 @@ public class BlocoDado extends Bloco {
     }
 
     /* Getters e Setters */
+
+    public byte[] getIdBucket() { return idBucket; }
+
+    public void setIdBucket(byte[] idBucket) { this.idBucket = idBucket; }
+
+    public byte[] getProximoBlocoBucket() { return proximoBlocoBucket; }
+
+    public void setProximoBlocoBucket(byte[] proximoBlocoBucket) { this.proximoBlocoBucket = proximoBlocoBucket; }
+
     private byte[] getTuplaDirectory(){
         byte[] tuplaDirectory = new byte[ getShortFromBytes(getTamanhoTuplaDirectory()) ];
 
@@ -245,6 +265,57 @@ public class BlocoDado extends Bloco {
 
     private void setUltimoEnderecoTupla(byte[] ultimoEnderecoTupla) {
         this.ultimoEnderecoTupla = ultimoEnderecoTupla;
+    }
+
+    public String tuplaToString(byte[] tupla, BlocoControle controle){
+
+        ArrayList<String[]> informacoesColunas = controle.getInformacoesColunas();
+        int numeroColuna = 0;
+        byte[] tamanhoColunaAtual = new byte[2];
+        byte[] dadosColunaAtual = new byte[0];
+        int countTamanhoColunaAtual = 0;
+        int countDadoColunaAtual = 0;
+        boolean isAddDados = false;
+        String linha = "";
+
+        for (int i = 0; i < tupla.length; i++) {
+
+            if(isAddDados){
+                dadosColunaAtual[countDadoColunaAtual] = tupla[i];
+                countDadoColunaAtual++;
+
+                if(countDadoColunaAtual == getShortFromBytes(tamanhoColunaAtual)){
+                    // Aqui o array de dados já está cheio, falta descobrir se é "I" ou "A"
+                    isAddDados = false;
+                    countTamanhoColunaAtual= 0;
+
+                    String[] infoColuna = informacoesColunas.get(numeroColuna);
+                    numeroColuna++;
+
+                    if(infoColuna[0].equals("A")){
+                        linha += bytesToString(dadosColunaAtual) + "|";
+                    } else {
+                        linha += getIntFromBytes(dadosColunaAtual) + "|";
+                    }
+
+                }
+
+            } else {
+                tamanhoColunaAtual[countTamanhoColunaAtual] = tupla[i];
+                countTamanhoColunaAtual++;
+            }
+
+            if(countTamanhoColunaAtual == 2){
+                dadosColunaAtual = new byte[getShortFromBytes(tamanhoColunaAtual)];
+                countDadoColunaAtual = 0;
+                countTamanhoColunaAtual = -1;
+                isAddDados = true;
+            }
+
+        }
+
+        return linha;
+
     }
 
     public String toString(BlocoControle controle) {

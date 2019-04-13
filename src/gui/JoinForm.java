@@ -1,5 +1,6 @@
 package gui;
 
+import custom.Pair;
 import sgbd.HHJ;
 
 import javax.swing.*;
@@ -100,11 +101,15 @@ public class JoinForm extends JFrame {
             JOptionPane.showMessageDialog(rootPanel, TAMANHO_MEMORIA_INDISPONIVEL, "ERRO", JOptionPane.ERROR_MESSAGE);
 
         } else {
+            int id1 = Integer.parseInt(String.valueOf(cbTabela1.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
+            int id2 = Integer.parseInt(String.valueOf(cbTabela2.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
 
-            // gera buckets para relacao 1
-            join.gerarBuckets(1, 367, listaColunas1.getSelectedIndex(), listaColunas1.getSelectedValue().substring(0, 1));
-
-            // gera buckets para relacao 2
+            join.init(
+                    Integer.parseInt(txtTamanhoMemoriaHHJ.getText()),
+                    Pair.of(1, 2),
+                    Pair.of(listaColunas1.getSelectedIndex(), listaColunas2.getSelectedIndex()),
+                    Pair.of(listaColunas1.getSelectedValue().substring(0, 1), listaColunas2.getSelectedValue().substring(0, 1))
+            );
 
         }
 
