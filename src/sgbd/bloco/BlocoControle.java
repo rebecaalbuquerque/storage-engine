@@ -165,8 +165,11 @@ public class BlocoControle extends Bloco {
         ArrayList<String> result = new ArrayList<>();
 
         for (String arrayColuna : arrayColunas) {
-            String coluna = arrayColuna.replaceAll(APENAS_NUMERO, "");
-            result.add(coluna.substring(0, coluna.length() - 1));
+            String s = arrayColuna.replaceAll(APENAS_NUMERO, "");
+            String coluna = s.substring(0, s.length() - 1);
+            String tipo = s.substring(s.length() - 1);
+
+            result.add(tipo + " - " + coluna);
         }
 
         return result;

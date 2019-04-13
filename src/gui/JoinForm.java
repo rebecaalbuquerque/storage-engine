@@ -5,6 +5,7 @@ import sgbd.HHJ;
 import javax.swing.*;
 import java.util.ArrayList;
 
+import static constants.ConstantesMensagemErro.*;
 import static constants.ConstantesRegex.APENAS_LETRAS;
 import static constants.ConstantesRegex.CARACTER_ESPECIAL;
 
@@ -27,8 +28,8 @@ public class JoinForm extends JFrame {
     private JComboBox<String> cbTabela1;
     private JComboBox<String> cbTabela2;
 
-    private JList<String> listaIndices1;
-    private JList<String> listaIndices2;
+    private JList<String> listaColunas1;
+    private JList<String> listaColunas2;
 
     private JTextField txtTamanhoMemoriaHHJ;
 
@@ -56,11 +57,8 @@ public class JoinForm extends JFrame {
 
         setupBtnJoin();
 
-        setupComboBoxClick(cbTabela1, listaIndices1);
-        setupComboBoxClick(cbTabela2, listaIndices2);
-
-        setupListIndiceClick(listaIndices1);
-        setupListIndiceClick(listaIndices2);
+        setupComboBoxClick(cbTabela1, listaColunas1);
+        setupComboBoxClick(cbTabela2, listaColunas2);;
 
         add(rootPanel);
     }
@@ -82,19 +80,33 @@ public class JoinForm extends JFrame {
     }
 
     private void setupBtnJoin(){
-        btnJoin.addActionListener(
-                e -> System.out.println("Join")
+        btnJoin.addActionListener(e ->
+                initJoin()
         );
     }
 
-    private void setupListIndiceClick(JList<String> jList){
+    private void initJoin(){
 
-        jList.addMouseListener(new java.awt.event.MouseAdapter(){
-            public void mouseClicked(java.awt.event.MouseEvent mouseEvent){
-                System.out.println(jList.getSelectedValue());
-                join.gerarBuckets(1, 367, jList.getSelectedIndex());
-            }
-        });
+        if(listaColunas1.getSelectedValue() == null || listaColunas2.getSelectedValue() == null){
+
+            JOptionPane.showMessageDialog(rootPanel, COLUNA_NAO_SELECIONADA, "ERRO", JOptionPane.ERROR_MESSAGE);
+
+        /*} else if(!listaColunas1.getSelectedValue().equals(listaColunas2.getSelectedValue())){
+
+            JOptionPane.showMessageDialog(rootPanel, COLUNAS_DIFERENTES, "ERRO", JOptionPane.ERROR_MESSAGE);*/
+
+        } else if(txtTamanhoMemoriaHHJ == null){
+
+            JOptionPane.showMessageDialog(rootPanel, TAMANHO_MEMORIA_INDISPONIVEL, "ERRO", JOptionPane.ERROR_MESSAGE);
+
+        } else {
+
+            // gera buckets para relacao 1
+            join.gerarBuckets(1, 367, listaColunas1.getSelectedIndex(), listaColunas1.getSelectedValue().substring(0, 1));
+
+            // gera buckets para relacao 2
+
+        }
 
     }
 
@@ -108,8 +120,6 @@ public class JoinForm extends JFrame {
         int id = Integer.parseInt(itemSelecionado.replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
 
         setupJList(join.buscarColunasTabelaById(id), jList);
-
-        //join.gerarBuckets(1, 367, indexSelected);
     }
 
     private void setupJList(ArrayList<String> lista, JList<String> jList){

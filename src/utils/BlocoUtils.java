@@ -118,20 +118,36 @@ public class BlocoUtils {
      * Retorna os dados de uma coluna a partir do index da mesma
      * */
     public static byte[] getDadosByIndexColuna(byte[] tupla, int index){
+        boolean foundColumn = false;
+        boolean isFillingColumn = false;
         int countColunas = 0;
-        int indexProximaColuna = 4;
+        int indexProximaColuna = 0;
         int countTamanhoColunaAtual = 0;
         int countResult = 0;
-        boolean foundColumn = false;
         byte[] tamanhoColunaAtual = new byte[2];
         byte[] result = new byte[0];
 
-        for (int i = 4; i < tupla.length; i++) {
+        for (int i = 0; i < tupla.length; i++) {
 
-            // TODO: esse if tá errado
             if(indexProximaColuna == i){
+                isFillingColumn = true;
+            }
+
+            if(isFillingColumn){
                 tamanhoColunaAtual[countTamanhoColunaAtual] = tupla[i];
                 countTamanhoColunaAtual++;
+            }
+
+            if(foundColumn){
+
+                result[countResult] = tupla[i];
+                countResult++;
+
+                // Se o começo da proxima coluna começou, então retorna o resultado
+                if(indexProximaColuna == i+1){
+                    return result;
+                }
+
             }
 
             if(countTamanhoColunaAtual == 2){
@@ -144,17 +160,8 @@ public class BlocoUtils {
                 }
 
                 countTamanhoColunaAtual = 0;
+                isFillingColumn = false;
                 countColunas++;
-
-            }
-
-            if(foundColumn){
-
-                result[countResult] = tupla[i];
-
-                if(indexProximaColuna == i){
-                    break;
-                }
 
             }
 
