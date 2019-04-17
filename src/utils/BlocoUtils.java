@@ -79,6 +79,10 @@ public class BlocoUtils {
         return (getTuplaFormatada(novaTupla).length + 2) < tamanhoDisponivel;
     }
 
+    public static boolean temEspacoParaNovaTupla(int tamanhoDisponivel, byte[] novaTupla){
+        return (novaTupla.length + 2) < tamanhoDisponivel;
+    }
+
     /**
      * Retorna o index de início de todas as tuplas que um bloco possui
      * @param tupleDirectory estrutura de dados que possui informação dos indexes

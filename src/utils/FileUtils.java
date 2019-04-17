@@ -71,7 +71,7 @@ public class FileUtils {
 
         String path;
 
-        if(tipoArquivo == TipoArquivo.SAIDA_TABELAS)
+        if(tipoArquivo == TipoArquivo.SAIDA_TABELAS || tipoArquivo == TipoArquivo.BUCKET)
             path = tipoArquivo.path + idTabela + ".txt";
         else
             path = tipoArquivo.path + ".txt";
@@ -106,7 +106,12 @@ public class FileUtils {
     }
 
     public static File buscarTabela(int idTabela){
-        String path = getDiretorioSaidaTabelas() + "/tabela" + idTabela + ".txt";
+        String path = TipoArquivo.SAIDA_TABELAS.path + idTabela + ".txt";
+        return new File(path);
+    }
+
+    public static File buscarBucket(int idTabela){
+        String path = TipoArquivo.BUCKET.path + idTabela + ".txt";
         return new File(path);
     }
 

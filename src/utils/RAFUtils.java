@@ -9,6 +9,20 @@ import static utils.ConversorUtils.getShortFromBytes;
 @SuppressWarnings("Duplicates")
 public class RAFUtils {
 
+    public static void escreverArquivo(File file, byte[] array) {
+        try {
+
+            RandomAccessFile raf = new RandomAccessFile(file,"rw");
+            raf.seek(raf.length());
+            raf.write(array);
+            raf.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static void escreverArquivo(File file, byte[] array, int offset) {
         try {
 

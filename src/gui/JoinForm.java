@@ -96,17 +96,12 @@ public class JoinForm extends JFrame {
 
             JOptionPane.showMessageDialog(rootPanel, COLUNAS_DIFERENTES, "ERRO", JOptionPane.ERROR_MESSAGE);*/
 
-        } else if(txtTamanhoMemoriaHHJ == null){
-
-            JOptionPane.showMessageDialog(rootPanel, TAMANHO_MEMORIA_INDISPONIVEL, "ERRO", JOptionPane.ERROR_MESSAGE);
-
-        } else {
+        }  else {
             int id1 = Integer.parseInt(String.valueOf(cbTabela1.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
             int id2 = Integer.parseInt(String.valueOf(cbTabela2.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
 
             join.init(
-                    Integer.parseInt(txtTamanhoMemoriaHHJ.getText()),
-                    Pair.of(1, 2),
+                    Pair.of(1, 2), // TODO: mudar para id1 e id2
                     Pair.of(listaColunas1.getSelectedIndex(), listaColunas2.getSelectedIndex()),
                     Pair.of(listaColunas1.getSelectedValue().substring(0, 1), listaColunas2.getSelectedValue().substring(0, 1))
             );

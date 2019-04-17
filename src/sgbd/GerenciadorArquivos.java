@@ -31,6 +31,16 @@ public class GerenciadorArquivos {
     public GerenciadorArquivos() {
     }
 
+    public void criarListaBuckets(int idTabela){
+        criarArquivo(containerID, TipoArquivo.BUCKET);
+    }
+
+    public void adicionarBucket(int idTabela, BlocoDado bucket){
+        File bucketFile = FileUtils.buscarBucket(idTabela);
+        escreverArquivo(bucketFile, bucket.getInformacoesCompletas());
+
+    }
+
     public void criarTabela(String arquivoEntrada) {
         containerID = getQuantidadeArquivosSaidaTabelas() + 1;
 
@@ -182,7 +192,7 @@ public class GerenciadorArquivos {
     }
 
     private BlocoControle carregarBlocoControle(File file) {
-        PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
+        //PrintUtils.printLoadingInformation("Carregando Bloco de Controle da " + file.getName() + "...");
         byte[] dadosControle = lerBlocoControle(file);
 
         return new BlocoControle(dadosControle);
