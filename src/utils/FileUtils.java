@@ -5,8 +5,6 @@ import enums.TipoArquivo;
 import java.io.*;
 import java.util.ArrayList;
 
-import static utils.DiretorioUtils.*;
-
 public class FileUtils {
 
     public static void escreverEmArquivo(File file, ArrayList<String> dados){
