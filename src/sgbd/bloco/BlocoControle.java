@@ -2,6 +2,7 @@ package sgbd.bloco;
 
 import utils.PrintUtils;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -29,19 +30,23 @@ public class BlocoControle extends Bloco {
         byte[] dados;
 
         if (isBucket) {
-            dados = stringsToBytes(headers.split(""));
+            dadosHeader = new byte[TAMANHO_BLOCO - 11];
+
+            setTamanhoHeader(intToArrayByte(TAMANHO_BLOCO - 11, 2));
+            atualizarProximoBloco(intToArrayByte(0, 4));
+
 
         } else {
             String[] arrayFormatado = formatarArrayHeaders(headers);
             dados = stringsToBytes(arrayFormatado);
+
+            dadosHeader = new byte[dados.length];
+
+            setTamanhoHeader(intToArrayByte(dados.length, 2));
+            atualizarProximoBloco(intToArrayByte(0, 4));
+
+            setDadosHeader(dados);
         }
-
-        dadosHeader = new byte[dados.length];
-
-        setTamanhoHeader(intToArrayByte(dados.length, 2));
-        atualizarProximoBloco(intToArrayByte(0, 4));
-
-        setDadosHeader(dados);
 
     }
 
@@ -106,8 +111,12 @@ public class BlocoControle extends Bloco {
     /* Buckets */
 
     public ArrayList<int[]> getListaBuckets() {
-        String[] arrayColunas = bytesToString(getDadosHeader()).split("\\|");
+        String[] arrayColunas = bytesToString(getDadosHeader()).trim().split("\\|");
         ArrayList<int[]> result = new ArrayList<>();
+
+        // se tiver vazio
+        if(arrayColunas.length == 1 && arrayColunas[0].trim().equals(""))
+            return null;
 
         for (String array : arrayColunas) {
 
@@ -139,7 +148,7 @@ public class BlocoControle extends Bloco {
     }
 
     public void atualizarUltimoBucket(int idBucket, int ultimoBucket) {
-        String[] arrayColunas = bytesToString(getDadosHeader()).split("\\|");
+        String[] arrayColunas = bytesToString(getDadosHeader()).trim().split("\\|");
         String result = "";
 
         for (int i = 0; i < arrayColunas.length; i++) {
@@ -161,10 +170,12 @@ public class BlocoControle extends Bloco {
 
     public boolean hasBucket(int idBucket) {
 
-        if(dadosHeader.length == 0)
+        ArrayList<int[]> buckets = getListaBuckets();
+
+        if(buckets == null)
             return false;
 
-        for (int[] b : getListaBuckets()) {
+        for (int[] b : buckets) {
 
             if(b[0] == idBucket)
                 return true;
@@ -174,12 +185,12 @@ public class BlocoControle extends Bloco {
         return false;
     }
 
-    public long getUltimoBlocoDoBucket(int idBucket) {
+    public int getUltimoBlocoDoBucket(int idBucket) {
 
         for (int[] b : getListaBuckets()) {
 
             if(b[0] == idBucket)
-                return (long) b[2];
+                return b[2];
 
         }
 

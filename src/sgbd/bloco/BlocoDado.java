@@ -95,6 +95,13 @@ public class BlocoDado extends Bloco {
         );
     }
 
+    public boolean temEspacoParaNovaTupla(byte[] novaTupla){
+        if( ((TAMANHO_BLOCO - QTD_HEADERS) - (TAMANHO_BLOCO - getShortFromBytes(ultimoEnderecoTupla)) - getShortFromBytes(tamanhoTuplaDirectory)) < novaTupla.length +2)
+            return false;
+        else
+            return true;
+    }
+
     private void inserirTupla(byte[] novaTupla){
         int countIndexTuplas = 0;
         int countIndexTuplaDirectory = 0;

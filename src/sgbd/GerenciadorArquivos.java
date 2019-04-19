@@ -38,6 +38,11 @@ public class GerenciadorArquivos {
         escreverArquivo(f, bc.getInformacoesCompletas());
     }
 
+    public void atualizarBlocoControleBucket(int idTabela, BlocoControle bc){
+        File f = buscarBucket(idTabela);
+        escreverArquivo(f, bc.getInformacoesCompletas(), 0);
+    }
+
     public long adicionarBucket(int idTabela, BlocoDado bucket){
         File bucketFile = FileUtils.buscarBucket(idTabela);
         return escreverArquivo(bucketFile, bucket.getInformacoesCompletas());
@@ -48,12 +53,12 @@ public class GerenciadorArquivos {
         escreverArquivo(bucketFile, bucket.getInformacoesCompletas(), offset);
     }
 
-    public BlocoDado getBlocoFromBucket(int idTabela, long ultimoBlocoDoBucket){
+    public BlocoDado getBlocoFromBucket(int idTabela, long index){
         File bucketFile = buscarBucket(idTabela);
 
         BlocoControle controle = new BlocoControle(lerBlocoControle(bucketFile));
 
-        return new BlocoDado(RAFUtils.lerDadosArquivo(bucketFile, (controle.getTamanhoTotal() + (int) ultimoBlocoDoBucket), TAMANHO_BLOCO));
+        return new BlocoDado(RAFUtils.lerDadosArquivo(bucketFile, (controle.getTamanhoTotal() + (int) index), TAMANHO_BLOCO));
     }
 
     public void criarTabela(String arquivoEntrada) {
