@@ -9,18 +9,22 @@ import static utils.ConversorUtils.getShortFromBytes;
 @SuppressWarnings("Duplicates")
 public class RAFUtils {
 
-    public static void escreverArquivo(File file, byte[] array) {
+    public static long escreverArquivo(File file, byte[] array) {
+        long result = 0;
+
         try {
 
             RandomAccessFile raf = new RandomAccessFile(file,"rw");
             raf.seek(raf.length());
             raf.write(array);
+            result = raf.length();
             raf.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        return result;
     }
 
     public static void escreverArquivo(File file, byte[] array, int offset) {
@@ -82,6 +86,18 @@ public class RAFUtils {
         }
 
         return result;
+    }
+
+    public static void limparArquivo(File file) {
+        try {
+
+            RandomAccessFile raf = new RandomAccessFile(file,"rw");
+            raf.setLength(0);
+            raf.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -124,7 +124,7 @@ public class BlocoControle extends Bloco {
         return result;
     }
 
-    public void adicionarBucket(int idBucket, int primeiroBucket, int ultimoBucket) {
+    public void adicionarBucket(int idBucket, long primeiroBucket, long ultimoBucket) {
         byte[] dados = stringsToBytes(new String[]{idBucket + ";" + primeiroBucket + ";" + ultimoBucket, "|"});
         byte[] novoHeader = new byte[dadosHeader.length + dados.length];
 
@@ -157,7 +157,34 @@ public class BlocoControle extends Bloco {
         byte[] dados = stringsToBytes(result.split(""));
         setTamanhoHeader(intToArrayByte(dados.length, 2));
         setDadosHeader(dados);
-        System.out.println();
+    }
+
+    public boolean hasBucket(int idBucket) {
+
+        if(dadosHeader.length == 0)
+            return false;
+
+        for (int[] b : getListaBuckets()) {
+
+            if(b[0] == idBucket)
+                return true;
+
+        }
+
+        return false;
+    }
+
+    public long getUltimoBlocoDoBucket(int idBucket) {
+
+        for (int[] b : getListaBuckets()) {
+
+            if(b[0] == idBucket)
+                return (long) b[2];
+
+        }
+
+        return -1;
+
     }
 
     /* Getters e Setters */

@@ -32,13 +32,28 @@ public class GerenciadorArquivos {
     }
 
     public void criarListaBuckets(int idTabela){
-        criarArquivo(containerID, TipoArquivo.BUCKET);
+        File f = criarArquivo(idTabela, TipoArquivo.BUCKET);
+        BlocoControle bc = new BlocoControle(idTabela, "", true);
+        limparArquivo(f);
+        escreverArquivo(f, bc.getInformacoesCompletas());
     }
 
-    public void adicionarBucket(int idTabela, BlocoDado bucket){
+    public long adicionarBucket(int idTabela, BlocoDado bucket){
         File bucketFile = FileUtils.buscarBucket(idTabela);
-        escreverArquivo(bucketFile, bucket.getInformacoesCompletas());
+        return escreverArquivo(bucketFile, bucket.getInformacoesCompletas());
+    }
 
+    public void adicionarBucket(int idTabela, BlocoDado bucket, int offset){
+        File bucketFile = FileUtils.buscarBucket(idTabela);
+        escreverArquivo(bucketFile, bucket.getInformacoesCompletas(), offset);
+    }
+
+    public BlocoDado getBlocoFromBucket(int idTabela, long ultimoBlocoDoBucket){
+        File bucketFile = buscarBucket(idTabela);
+
+        BlocoControle controle = new BlocoControle(lerBlocoControle(bucketFile));
+
+        return new BlocoDado(RAFUtils.lerDadosArquivo(bucketFile, (controle.getTamanhoTotal() + (int) ultimoBlocoDoBucket), TAMANHO_BLOCO));
     }
 
     public void criarTabela(String arquivoEntrada) {
@@ -58,7 +73,7 @@ public class GerenciadorArquivos {
             buffer = new BufferedReader(reader);
 
             // Criando Bloco de Controle
-            BlocoControle controle = new BlocoControle(containerID, buffer.readLine());
+            BlocoControle controle = new BlocoControle(containerID, buffer.readLine(), false);
 
             // Criando primeiro Bloco de Dados
             BlocoDado blocoDadoAtual = new BlocoDado(getContainerID());
@@ -186,8 +201,14 @@ public class GerenciadorArquivos {
         printResultData(new BlocoDado(lerDadosArquivo(file, controle.getTamanhoTotal() + (idBloco * TAMANHO_BLOCO), TAMANHO_BLOCO)).toString(controle));
     }
 
-    public BlocoControle carregarBlocoControle(int idTabela) {
-        File file = buscarTabela(idTabela);
+    public BlocoControle carregarBlocoControle(int idTabela, boolean isBucket) {
+        File file;
+
+        if(isBucket)
+            file = buscarBucket(idTabela);
+        else
+            file = buscarTabela(idTabela);
+
         return carregarBlocoControle(file);
     }
 
