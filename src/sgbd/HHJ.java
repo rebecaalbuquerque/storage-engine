@@ -30,16 +30,16 @@ public class HHJ {
         BlocoControle controle2 = ga.carregarBlocoControle(tabelas.second, false);
 
         if (getIntFromBytes(controle1.getProximoBloco()) < getIntFromBytes(controle2.getProximoBloco())) {
-            //ga.criarListaBuckets(tabelas.second);
+            ga.criarListaBuckets(tabelas.second);
             idTabelaDisco = tabelas.second;
             gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle1.getProximoBloco()), true);
-            //gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
 
         } else {
-            //ga.criarListaBuckets(tabelas.first);
+            ga.criarListaBuckets(tabelas.first);
             idTabelaDisco = tabelas.first;
             gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle2.getProximoBloco()), true);
-            //gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
 
         }
 

@@ -40,7 +40,7 @@ public class GerenciadorArquivos {
 
     public void atualizarBlocoControleBucket(int idTabela, BlocoControle bc){
         File f = buscarBucket(idTabela);
-        escreverArquivo(f, bc.getInformacoesCompletas(), 0);
+        atualizarBlocoControle(f, bc.getInformacoesCompletas());
     }
 
     public long adicionarBucket(int idTabela, BlocoDado bucket){

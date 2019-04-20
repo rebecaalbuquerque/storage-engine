@@ -30,23 +30,19 @@ public class BlocoControle extends Bloco {
         byte[] dados;
 
         if (isBucket) {
-            dadosHeader = new byte[TAMANHO_BLOCO - 11];
-
-            setTamanhoHeader(intToArrayByte(TAMANHO_BLOCO - 11, 2));
-            atualizarProximoBloco(intToArrayByte(0, 4));
-
+            dados = stringsToBytes(headers.trim().split(""));
 
         } else {
             String[] arrayFormatado = formatarArrayHeaders(headers);
             dados = stringsToBytes(arrayFormatado);
-
-            dadosHeader = new byte[dados.length];
-
-            setTamanhoHeader(intToArrayByte(dados.length, 2));
-            atualizarProximoBloco(intToArrayByte(0, 4));
-
-            setDadosHeader(dados);
         }
+
+        dadosHeader = new byte[dados.length];
+
+        setTamanhoHeader(intToArrayByte(dados.length, 2));
+        atualizarProximoBloco(intToArrayByte(0, 4));
+
+        setDadosHeader(dados);
 
     }
 
