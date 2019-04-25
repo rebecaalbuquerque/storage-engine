@@ -13,7 +13,7 @@ import static utils.ConversorUtils.*;
 @SuppressWarnings("Duplicates")
 public class BlocoDado extends Bloco {
 
-    public static final int QTD_HEADERS = 13;
+    public static final int QTD_HEADERS = 15;
     private static int contador = -1;
 
     /* Informações de um bloco de dados */
@@ -24,7 +24,7 @@ public class BlocoDado extends Bloco {
     private byte[] dados; // tupla directory + tuplas
 
     private byte[] idBucket = new byte[2];
-    private byte[] proximoBlocoBucket = new byte[2];
+    private byte[] proximoBlocoBucket = new byte[4];
 
 
     private int tamanhoTuplasDisponivel;
@@ -36,6 +36,7 @@ public class BlocoDado extends Bloco {
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
         setIdBloco(intToArrayByte(contador, 3));
         setTipo(intToArrayByte(TIPO_1.valor, 1)[0]);
+        setProximoBlocoBucket(new byte[]{ -1, -1, -1, -1 });
 
         /* Dados */
         this.dados = new byte[TAMANHO_BLOCO - QTD_HEADERS];
@@ -51,7 +52,7 @@ public class BlocoDado extends Bloco {
         setTamanhoTuplaDirectory(new byte[]{ bloco[5], bloco[6]});
         setUltimoEnderecoTupla(new byte[]{ bloco[7], bloco[8] });
         setIdBucket(new byte[]{ bloco[9], bloco[10] });
-        setProximoBlocoBucket(new byte[]{ bloco[11], bloco[12] });
+        setProximoBlocoBucket(new byte[]{ bloco[11], bloco[12], bloco[13], bloco[14] });
 
         this.dados = new byte[bloco.length - QTD_HEADERS];
 
@@ -213,12 +214,13 @@ public class BlocoDado extends Bloco {
     }
 
     /* Getters e Setters */
-
     public byte[] getIdBucket() { return idBucket; }
 
     public void setIdBucket(byte[] idBucket) { this.idBucket = idBucket; }
 
     public byte[] getProximoBlocoBucket() { return proximoBlocoBucket; }
+
+    public int getProximoBlocoBucketAsInt() { return getIntFromBytes(proximoBlocoBucket); }
 
     public void setProximoBlocoBucket(byte[] proximoBlocoBucket) { this.proximoBlocoBucket = proximoBlocoBucket; }
 
