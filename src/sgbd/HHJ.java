@@ -26,24 +26,27 @@ public class HHJ {
             Pair<String, String> tiposColunas
     ) {
         int idTabelaDisco;
+        int tamanhoBucketsDisco;
         BlocoControle controle1 = ga.carregarBlocoControle(tabelas.first, false);
         BlocoControle controle2 = ga.carregarBlocoControle(tabelas.second, false);
 
         if (getIntFromBytes(controle1.getProximoBloco()) < getIntFromBytes(controle2.getProximoBloco())) {
-            ga.criarListaBuckets(tabelas.second);
+            tamanhoBucketsDisco = getIntFromBytes(controle1.getProximoBloco());
+            //ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.second;
             gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle1.getProximoBloco()), true);
-            gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            //gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            probe(idTabelaDisco, tamanhoBucketsDisco, controle1, controle2);
 
         } else {
-            ga.criarListaBuckets(tabelas.first);
+            tamanhoBucketsDisco = getIntFromBytes(controle2.getProximoBloco());
+            //ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.first;
             gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle2.getProximoBloco()), true);
-            gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            //gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            probe(idTabelaDisco, tamanhoBucketsDisco, controle2, controle1);
 
         }
-
-        probe(idTabelaDisco);
 
     }
 
@@ -130,14 +133,15 @@ public class HHJ {
                             dado.adicionarNovaTupla(tuplaCompleta);
                             ga.adicionarBucket(idTabela, ultimo, indexUltimoBlocoDoBucket); // devolve o penultimo
                             ga.adicionarBucket(idTabela, dado);
-                            controlebucket.atualizarUltimoBucket(idBucket, indexUltimoBlocoDoBucket + TAMANHO_BLOCO); // adiciona o novo ultimo
+                            // TODO: ver se "indexUltimoBlocoDoBucket + TAMANHO_BLOCO" está correto
+                            controlebucket.updateBucket(idBucket, null, indexUltimoBlocoDoBucket + TAMANHO_BLOCO); // adiciona o novo ultimo
                         }
 
                     } else {
                         BlocoDado dado = new BlocoDado(idTabela);
                         dado.adicionarNovaTupla(tuplaCompleta);
                         long index = ga.adicionarBucket(idTabela, dado);
-                        controlebucket.adicionarBucket(idBucket, index, index);
+                        controlebucket.updateBucket(idBucket, (int) index, null);
                     }
 
                 }
@@ -151,12 +155,16 @@ public class HHJ {
 
     }
 
-    private void probe(int idTabelaDisco){
+    private void probe(int idTabelaDisco, int tamanhoBuckets, BlocoControle controleMemoria, BlocoControle controleDisco){
         BlocoControle controlebucket = ga.carregarBlocoControle(idTabelaDisco, true);
 
-        for (int[] buckets : controlebucket.getListaBuckets()) {
-            LinkedList<BlocoDado> blocoMemor = memoria.get(buckets[0]);
-            BlocoDado blocoDisco = ga.getBlocoFromBucket(idTabelaDisco, buckets[1]);
+        for (byte[] bucket : controlebucket.getListaBuckets(tamanhoBuckets)) {
+            int idBucket = getShortFromBytes(new byte[]{ bucket[0], bucket[1] });
+            int primeiroBloco = getIntFromBytes(new byte[]{ bucket[2], bucket[3], bucket[4], bucket[5] });
+            int ultimoBloco = getIntFromBytes(new byte[]{ bucket[6], bucket[7], bucket[8], bucket[9] });
+
+            LinkedList<BlocoDado> blocoMemor = memoria.get(idBucket);
+            BlocoDado blocoDisco = ga.getBlocoFromBucket(idTabelaDisco, primeiroBloco);
             System.out.println();
         }
 

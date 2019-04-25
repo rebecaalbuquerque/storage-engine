@@ -2,12 +2,13 @@ package sgbd.bloco;
 
 import utils.PrintUtils;
 
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static constants.ConstantesRegex.APENAS_NUMERO;
-import static constants.ConstantesSGBD.*;
+import static constants.ConstantesSGBD.SEPARADOR_COLUNA_EM_BYTES;
+import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static enums.StatusContainer.STATUS_0;
 import static utils.BlocoUtils.formatarArrayHeaders;
 import static utils.BlocoUtils.getInformacaoColuna;
@@ -21,6 +22,8 @@ public class BlocoControle extends Bloco {
     private byte[] tamanhoHeader = new byte[2];
     private byte[] dadosHeader;
 
+    private final int QUANTIDADE_BYTES_BUCKET_HEADER = 10;
+
     public BlocoControle(int idArquivo, String headers, boolean isBucket) {
 
         setIdArquivo(intToArrayByte(idArquivo, 1)[0]);
@@ -30,19 +33,22 @@ public class BlocoControle extends Bloco {
         byte[] dados;
 
         if (isBucket) {
-            dados = stringsToBytes(headers.trim().split(""));
+            dadosHeader = new byte[TAMANHO_BLOCO - 11];
+
+            setTamanhoHeader(intToArrayByte(TAMANHO_BLOCO - 11, 2));
+            atualizarProximoBloco(intToArrayByte(0, 4));
 
         } else {
             String[] arrayFormatado = formatarArrayHeaders(headers);
             dados = stringsToBytes(arrayFormatado);
+
+            dadosHeader = new byte[dados.length];
+
+            setTamanhoHeader(intToArrayByte(dados.length, 2));
+            atualizarProximoBloco(intToArrayByte(0, 4));
+
+            setDadosHeader(dados);
         }
-
-        dadosHeader = new byte[dados.length];
-
-        setTamanhoHeader(intToArrayByte(dados.length, 2));
-        atualizarProximoBloco(intToArrayByte(0, 4));
-
-        setDadosHeader(dados);
 
     }
 
@@ -105,92 +111,100 @@ public class BlocoControle extends Bloco {
     }
 
     /* Buckets */
+    public ArrayList<byte[]> getListaBuckets(int tamanhoBuckets) {
+        ArrayList<byte[]> result = new ArrayList<>();
 
-    public ArrayList<int[]> getListaBuckets() {
-        String[] arrayColunas = bytesToString(getDadosHeader()).trim().split("\\|");
-        ArrayList<int[]> result = new ArrayList<>();
-
-        // se tiver vazio
-        if(arrayColunas.length == 1 && arrayColunas[0].trim().equals(""))
-            return null;
-
-        for (String array : arrayColunas) {
-
-            String[] dados = array.split(";");
-
-            result.add(new int[]{
-                    Integer.parseInt(dados[0]),
-                    Integer.parseInt(dados[1]),
-                    Integer.parseInt(dados[2]),
-            });
-
+        for (int i = 0; i < tamanhoBuckets*QUANTIDADE_BYTES_BUCKET_HEADER; i += QUANTIDADE_BYTES_BUCKET_HEADER) {
+            byte[] bucket = Arrays.copyOfRange(dadosHeader, i, i + QUANTIDADE_BYTES_BUCKET_HEADER);
+            result.add(bucket);
         }
 
         return result;
     }
 
-    public void adicionarBucket(int idBucket, long primeiroBucket, long ultimoBucket) {
-        byte[] dados = stringsToBytes(new String[]{idBucket + ";" + primeiroBucket + ";" + ultimoBucket, "|"});
-        byte[] novoHeader = new byte[dadosHeader.length + dados.length];
-
-        // copiando antigo header para novo header
-        System.arraycopy(dadosHeader, 0, novoHeader, 0, dadosHeader.length);
-
-        // colocando novo elemento no novo header
-        System.arraycopy(dados, 0, novoHeader, dadosHeader.length, dados.length);
-        setDadosHeader(novoHeader);
-        setTamanhoHeader(intToArrayByte(novoHeader.length, 2));
-
-    }
-
-    public void atualizarUltimoBucket(int idBucket, int ultimoBucket) {
-        String[] arrayColunas = bytesToString(getDadosHeader()).trim().split("\\|");
-        String result = "";
-
-        for (int i = 0; i < arrayColunas.length; i++) {
-            String[] dados = arrayColunas[i].split(";");
-
-            if(Integer.parseInt(dados[0]) == idBucket){
-                arrayColunas[i] = dados[0] + ";" + dados[1] + ";" + ultimoBucket;
-            }
-
-            result += arrayColunas[i];
-            result += "|";
-
-        }
-
-        byte[] dados = stringsToBytes(result.split(""));
-        setTamanhoHeader(intToArrayByte(dados.length, 2));
-        setDadosHeader(dados);
-    }
-
     public boolean hasBucket(int idBucket) {
 
-        ArrayList<int[]> buckets = getListaBuckets();
+        byte[] bucket = new byte[QUANTIDADE_BYTES_BUCKET_HEADER];
+        System.arraycopy(dadosHeader, idBucket*QUANTIDADE_BYTES_BUCKET_HEADER, bucket, 0, bucket.length);
 
-        if(buckets == null)
-            return false;
+        int primeiroBlocoBucket = getIntFromBytes(new byte[]{bucket[2], bucket[3], bucket[4], bucket[5]});
+        int ultimoBlocoBucket = getIntFromBytes(new byte[]{bucket[6], bucket[7], bucket[8], bucket[9]});
 
-        for (int[] b : buckets) {
+        return primeiroBlocoBucket != 0 && ultimoBlocoBucket != 0;
 
-            if(b[0] == idBucket)
-                return true;
-
-        }
-
-        return false;
     }
 
+    /**
+     * Retorna o index do começo do ultimo ultimo bloco de um bucket específico
+     * */
     public int getUltimoBlocoDoBucket(int idBucket) {
+        int indexBucket = idBucket * QUANTIDADE_BYTES_BUCKET_HEADER;
+        byte[] bucket = new byte[QUANTIDADE_BYTES_BUCKET_HEADER];
 
-        for (int[] b : getListaBuckets()) {
+        System.arraycopy(dadosHeader, indexBucket, bucket, 0, bucket.length);
 
-            if(b[0] == idBucket)
-                return b[2];
+        return getIntFromBytes(new byte[]{ bucket[6], bucket[7], bucket[8], bucket[9] });
 
+    }
+
+    public void updateBucket(int idBucket, Integer primeiroBloco, Integer ultimoBloco){
+        int indexBucket = (idBucket * QUANTIDADE_BYTES_BUCKET_HEADER);
+        byte[] primeiro;
+        byte[] ultimo;
+        byte[] bucket = new byte[QUANTIDADE_BYTES_BUCKET_HEADER];
+
+        // 0, 1 = id do bucket
+        // 2, 3, 4, 5 = primeiroBlocoBucket
+        // 6, 7, 8, 9 = ultimoBlocoBucket
+
+        System.arraycopy(dadosHeader, indexBucket, bucket, 0, bucket.length);
+
+        if (primeiroBloco == null) {
+            // Se o primeiroBloco for null é porque então a unica coisa que será modificada no bucket, é o ultimoBloco
+
+            ultimo = intToArrayByte(ultimoBloco, 4);
+            bucket[6] = ultimo[0];
+            bucket[7] = ultimo[1];
+            bucket[8] = ultimo[2];
+            bucket[9] = ultimo[3];
+
+        } else if(ultimoBloco == null) {
+            // Se o ultimoBloco for null então é porque será modificado o primeiroBloco e o ultimoBloco
+
+            primeiro = intToArrayByte(primeiroBloco, 4);
+            bucket[2] = primeiro[0];
+            bucket[3] = primeiro[1];
+            bucket[4] = primeiro[2];
+            bucket[5] = primeiro[3];
+
+            bucket[6] = primeiro[0];
+            bucket[7] = primeiro[1];
+            bucket[8] = primeiro[2];
+            bucket[9] = primeiro[3];
         }
 
-        return -1;
+        // Devolve o bucket modificado para dadosHeader
+        System.arraycopy(bucket, 0, dadosHeader, indexBucket, bucket.length);
+    }
+
+    public void initBuckets(int quantidadeBuckets) {
+        ArrayList<byte[]> emptyBuckets = new ArrayList<>();
+
+        for (int i = 0; i < quantidadeBuckets; i++) {
+            byte[] idBucket = intToArrayByte(i, 2);
+
+            byte[] bucket = new byte[] {
+                    idBucket[0], idBucket[1],   // id bucket
+                    0, 0, 0, 0,                 // index primeiro bloco do bucket
+                    0, 0, 0, 0                  // index ultimo bloco do bucket
+            };
+
+            emptyBuckets.add(bucket);
+        }
+
+        byte[] novoHeader = concatenarArrays(emptyBuckets);
+
+        System.arraycopy(novoHeader, 0, dadosHeader, 0, novoHeader.length);
 
     }
 

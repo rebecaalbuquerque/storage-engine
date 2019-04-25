@@ -31,9 +31,10 @@ public class GerenciadorArquivos {
     public GerenciadorArquivos() {
     }
 
-    public void criarListaBuckets(int idTabela){
+    public void criarListaBuckets(int idTabela, int quantidadeBuckets){
         File f = criarArquivo(idTabela, TipoArquivo.BUCKET);
         BlocoControle bc = new BlocoControle(idTabela, "", true);
+        bc.initBuckets(quantidadeBuckets);
         limparArquivo(f);
         escreverArquivo(f, bc.getInformacoesCompletas());
     }
