@@ -15,9 +15,9 @@ public class RAFUtils {
         try {
 
             RandomAccessFile raf = new RandomAccessFile(file,"rw");
+            result = raf.length();
             raf.seek(raf.length());
             raf.write(array);
-            result = raf.length();
             raf.close();
 
         } catch (IOException e) {
@@ -34,29 +34,6 @@ public class RAFUtils {
             raf.seek(offset);
             raf.write(array);
             raf.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void atualizarBlocoControle(File file, byte[] novoControle) {
-        int indexBlocos = lerBlocoControle(file).length;
-
-        byte[] blocos;
-
-        try {
-            RandomAccessFile raf1 = new RandomAccessFile(file, "r");
-
-            raf1.seek(indexBlocos);
-            blocos = new byte[(int) raf1.length() - indexBlocos];
-            raf1.read(blocos);
-            raf1.close();
-
-            limparArquivo(file);
-            escreverArquivo(file, novoControle);
-            escreverArquivo(file, blocos);
 
         } catch (IOException e) {
             e.printStackTrace();

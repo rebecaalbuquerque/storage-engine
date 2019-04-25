@@ -4,7 +4,9 @@ import custom.Pair;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.getDadosByIndexColuna;
@@ -32,18 +34,18 @@ public class HHJ {
 
         if (getIntFromBytes(controle1.getProximoBloco()) < getIntFromBytes(controle2.getProximoBloco())) {
             tamanhoBucketsDisco = getIntFromBytes(controle1.getProximoBloco());
-            //ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
+            ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.second;
             gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle1.getProximoBloco()), true);
-            //gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
             probe(idTabelaDisco, tamanhoBucketsDisco, controle1, controle2);
 
         } else {
             tamanhoBucketsDisco = getIntFromBytes(controle2.getProximoBloco());
-            //ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
+            ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.first;
             gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle2.getProximoBloco()), true);
-            //gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
             probe(idTabelaDisco, tamanhoBucketsDisco, controle2, controle1);
 
         }
@@ -93,6 +95,7 @@ public class HHJ {
                     if (!memoria.containsKey(idBucket)) {
 
                         BlocoDado dado = new BlocoDado(idTabela);
+                        dado.setIdBucket(intToArrayByte(idBucket, 2));
                         dado.adicionarNovaTupla(tuplaCompleta);
                         LinkedList<BlocoDado> list = new LinkedList<>();
                         list.addFirst(dado);
@@ -109,6 +112,7 @@ public class HHJ {
                             dado.adicionarNovaTupla(tuplaCompleta);
                         else {
                             BlocoDado aux = new BlocoDado(idTabela);
+                            aux.setIdBucket(intToArrayByte(idBucket, 2));
                             aux.adicionarNovaTupla(tuplaCompleta);
                             list.addLast(aux);
                         }
@@ -125,22 +129,25 @@ public class HHJ {
 
                         if(ultimo.temEspacoParaNovaTupla(tuplaCompleta)) {
                             ultimo.adicionarNovaTupla(tuplaCompleta);
-                            ga.adicionarBucket(idTabela, ultimo, indexUltimoBlocoDoBucket);
+                            ga.adicionarBlocoNoBucket(idTabela, ultimo, indexUltimoBlocoDoBucket);
 
                         } else {
                             // "ultimo" agora será o "penultimo"
                             BlocoDado dado = new BlocoDado(idTabela);
+                            dado.setIdBucket(intToArrayByte(idBucket, 2));
+                            // TODO: setar proximo
+                            //ultimo.setProximoBucket(  )
                             dado.adicionarNovaTupla(tuplaCompleta);
-                            ga.adicionarBucket(idTabela, ultimo, indexUltimoBlocoDoBucket); // devolve o penultimo
-                            ga.adicionarBucket(idTabela, dado);
-                            // TODO: ver se "indexUltimoBlocoDoBucket + TAMANHO_BLOCO" está correto
-                            controlebucket.updateBucket(idBucket, null, indexUltimoBlocoDoBucket + TAMANHO_BLOCO); // adiciona o novo ultimo
+                            ga.adicionarBlocoNoBucket(idTabela, ultimo, indexUltimoBlocoDoBucket); // devolve o penultimo
+                            int indexNovoUltimoBlocoDoBucket = (int) ga.adicionarBlocoNoBucket(idTabela, dado);
+                            controlebucket.updateBucket(idBucket, null, indexNovoUltimoBlocoDoBucket); // adiciona o novo ultimo
                         }
 
                     } else {
                         BlocoDado dado = new BlocoDado(idTabela);
+                        dado.setIdBucket(intToArrayByte(idBucket, 2));
                         dado.adicionarNovaTupla(tuplaCompleta);
-                        long index = ga.adicionarBucket(idTabela, dado);
+                        long index = ga.adicionarBlocoNoBucket(idTabela, dado);
                         controlebucket.updateBucket(idBucket, (int) index, null);
                     }
 
@@ -163,7 +170,17 @@ public class HHJ {
             int primeiroBloco = getIntFromBytes(new byte[]{ bucket[2], bucket[3], bucket[4], bucket[5] });
             int ultimoBloco = getIntFromBytes(new byte[]{ bucket[6], bucket[7], bucket[8], bucket[9] });
 
-            LinkedList<BlocoDado> blocoMemor = memoria.get(idBucket);
+            LinkedList<BlocoDado> blocosMemoria = memoria.get(idBucket);
+
+            for (BlocoDado bMemoria : blocosMemoria) {
+
+                for (int i = 0; i < ultimoBloco; i += TAMANHO_BLOCO) {
+                    // bDisco =
+                    // id idBu
+                }
+
+            }
+
             BlocoDado blocoDisco = ga.getBlocoFromBucket(idTabelaDisco, primeiroBloco);
             System.out.println();
         }

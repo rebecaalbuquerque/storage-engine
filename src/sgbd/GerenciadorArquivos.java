@@ -36,20 +36,20 @@ public class GerenciadorArquivos {
         BlocoControle bc = new BlocoControle(idTabela, "", true);
         bc.initBuckets(quantidadeBuckets);
         limparArquivo(f);
-        escreverArquivo(f, bc.getInformacoesCompletas());
+        escreverArquivo(f, bc.getInformacoesCompletas(), 0);
     }
 
     public void atualizarBlocoControleBucket(int idTabela, BlocoControle bc){
         File f = buscarBucket(idTabela);
-        atualizarBlocoControle(f, bc.getInformacoesCompletas());
+        escreverArquivo(f, bc.getInformacoesCompletas(), 0);
     }
 
-    public long adicionarBucket(int idTabela, BlocoDado bucket){
+    public long adicionarBlocoNoBucket(int idTabela, BlocoDado bloco){
         File bucketFile = FileUtils.buscarBucket(idTabela);
-        return escreverArquivo(bucketFile, bucket.getInformacoesCompletas());
+        return escreverArquivo(bucketFile, bloco.getInformacoesCompletas());
     }
 
-    public void adicionarBucket(int idTabela, BlocoDado bucket, int offset){
+    public void adicionarBlocoNoBucket(int idTabela, BlocoDado bucket, int offset){
         File bucketFile = FileUtils.buscarBucket(idTabela);
         escreverArquivo(bucketFile, bucket.getInformacoesCompletas(), offset);
     }
@@ -59,7 +59,7 @@ public class GerenciadorArquivos {
 
         BlocoControle controle = new BlocoControle(lerBlocoControle(bucketFile));
 
-        return new BlocoDado(RAFUtils.lerDadosArquivo(bucketFile, (controle.getTamanhoTotal() + (int) index), TAMANHO_BLOCO));
+        return new BlocoDado(RAFUtils.lerDadosArquivo(bucketFile, (int) index, TAMANHO_BLOCO));
     }
 
     public void criarTabela(String arquivoEntrada) {
