@@ -4,12 +4,9 @@ import custom.Pair;
 import sgbd.bloco.BlocoControle;
 import sgbd.bloco.BlocoDado;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static constants.ConstantesSGBD.TAMANHO_BLOCO;
 import static utils.BlocoUtils.getDadosByIndexColuna;
 import static utils.BlocoUtils.temEspacoParaNovaTupla;
 import static utils.ConversorUtils.*;
@@ -19,38 +16,44 @@ public class HHJ {
     private GerenciadorArquivos ga = new GerenciadorArquivos();
     private GerenciadorBuffer gb = new GerenciadorBuffer(ga);
     private HashMap<Integer, LinkedList<BlocoDado>> memoria = new HashMap<>();
-    private ArrayList<byte[]> testeProbe = new ArrayList<>();
+    private ArrayList<String> resultJoin;
 
     public HHJ() {
     }
 
-    public void init(
+    public ArrayList<String> getJoinResult(
             Pair<Integer, Integer> tabelas,
             Pair<Integer, Integer> indexAtributoJuncao,
             Pair<String, String> tiposColunas
     ) {
+        resultJoin = new ArrayList<>();
+
         int idTabelaDisco;
         int tamanhoBucketsDisco;
         BlocoControle controle1 = ga.carregarBlocoControle(tabelas.first, false);
         BlocoControle controle2 = ga.carregarBlocoControle(tabelas.second, false);
 
         if (getIntFromBytes(controle1.getProximoBloco()) < getIntFromBytes(controle2.getProximoBloco())) {
+            setupHeadersControle(controle1, controle2, indexAtributoJuncao.first, indexAtributoJuncao.second);
             tamanhoBucketsDisco = getIntFromBytes(controle1.getProximoBloco());
-            ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
+            //ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.second;
             gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle1.getProximoBloco()), true);
-            gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
-            probe(idTabelaDisco, tamanhoBucketsDisco, controle1, controle2, indexAtributoJuncao.first);
+            //gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            probe(idTabelaDisco, tamanhoBucketsDisco, indexAtributoJuncao.first, indexAtributoJuncao.second, controle1, controle2);
 
         } else {
+            setupHeadersControle(controle2, controle1, indexAtributoJuncao.second, indexAtributoJuncao.first);
             tamanhoBucketsDisco = getIntFromBytes(controle2.getProximoBloco());
-            ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
+            //ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.first;
             gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle2.getProximoBloco()), true);
-            gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
-            probe(idTabelaDisco, tamanhoBucketsDisco, controle2, controle1, indexAtributoJuncao.second);
+            //gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            probe(idTabelaDisco, tamanhoBucketsDisco, indexAtributoJuncao.second, indexAtributoJuncao.first, controle2, controle1);
 
         }
+
+        return resultJoin;
 
     }
 
@@ -89,7 +92,6 @@ public class HHJ {
                     idBucket = hashString(bytesToString(dadosColuna), quantidadeBuckets);
                 else
                     idBucket = hashInt(getIntFromBytes(dadosColuna), quantidadeBuckets);
-
 
                 if (isInMemory) {
                     // Criando buckets em memória para a menor tabela
@@ -138,7 +140,9 @@ public class HHJ {
                             BlocoDado dado = new BlocoDado(idTabela);
                             dado.setIdBucket(intToArrayByte(idBucket, 2));
                             dado.adicionarNovaTupla(tuplaCompleta);
+
                             int indexNovoUltimoBlocoDoBucket = (int) ga.adicionarBlocoNoBucket(idTabela, dado);
+
                             ultimo.setProximoBlocoBucket( intToArrayByte(indexNovoUltimoBlocoDoBucket, 4) );
                             ga.adicionarBlocoNoBucket(idTabela, ultimo, indexUltimoBlocoDoBucket); // devolve o penultimo pro disco
                             controlebucket.updateBucket(idBucket, null, indexNovoUltimoBlocoDoBucket); // adiciona o novo ultimo no disco
@@ -149,6 +153,7 @@ public class HHJ {
                         dado.setIdBucket(intToArrayByte(idBucket, 2));
                         dado.adicionarNovaTupla(tuplaCompleta);
                         long index = ga.adicionarBlocoNoBucket(idTabela, dado);
+
                         controlebucket.updateBucket(idBucket, (int) index, null);
                     }
 
@@ -163,7 +168,7 @@ public class HHJ {
 
     }
 
-    private void probe(int idTabelaDisco, int tamanhoBuckets, BlocoControle controleMemoria, BlocoControle controleDisco, int indexAtributoJuncao){
+    private void probe(int idTabelaDisco, int tamanhoBuckets, int indexAtributoJuncao1, int indexAtributoJuncao2, BlocoControle controleMemoria, BlocoControle controleDisco){
         BlocoControle controlebucket = ga.carregarBlocoControle(idTabelaDisco, true);
 
         for (byte[] bucket : controlebucket.getListaBuckets(tamanhoBuckets)) {
@@ -173,24 +178,43 @@ public class HHJ {
 
             LinkedList<BlocoDado> blocosMemoria = memoria.get(idBucket);
 
-            // TODO: verificar logica
             for (BlocoDado bMemoria : blocosMemoria) {
 
                 BlocoDado bDisco = ga.getBlocoFromBucket(idTabelaDisco, primeiroBloco);
                 int proximoBloco = 0;
 
-                while (proximoBloco != ultimoBloco){
+                while (proximoBloco != ultimoBloco) {
 
                     for (byte[] tuplaMemoria : bMemoria.getListaTuplas()) {
-
-                        byte[] dadosColunaMemoria = getDadosByIndexColuna(tuplaMemoria, indexAtributoJuncao);
+                        byte[] dadosColunaMemoria = getDadosByIndexColuna(tuplaMemoria, indexAtributoJuncao1);
 
                         for (byte[] tuplaDisco : bDisco.getListaTuplas()) {
 
-                            byte[] dadosColunaDisco = getDadosByIndexColuna(tuplaDisco, indexAtributoJuncao);
+                            byte[] dadosColunaDisco = getDadosByIndexColuna(tuplaDisco, indexAtributoJuncao2);
 
-                            if(Arrays.equals(dadosColunaMemoria, dadosColunaDisco))
-                                testeProbe.add(tuplaMemoria);
+                            if (Arrays.equals(dadosColunaMemoria, dadosColunaDisco)) {
+                                String s = "";
+                                String[] tupla1 = bMemoria.tuplaToString(tuplaMemoria, controleMemoria).split("\\|");
+                                String[] tupla2 = bDisco.tuplaToString(tuplaDisco, controleDisco).split("\\|");
+
+                                for (int i = 0; i < tupla1.length; i++) {
+
+                                    if(i != indexAtributoJuncao1){
+                                        s += tupla1[i] + "|";
+                                    }
+
+                                }
+
+                                for (int i = 0; i < tupla2.length; i++) {
+
+                                    if(i != indexAtributoJuncao2){
+                                        s += tupla2[i] + "|";
+                                    }
+
+                                }
+
+                                resultJoin.add(s);
+                            }
 
                         }
 
@@ -198,13 +222,33 @@ public class HHJ {
 
                     proximoBloco = bDisco.getProximoBlocoBucketAsInt();
                     bDisco = ga.getBlocoFromBucket(idTabelaDisco, proximoBloco);
-                }
 
+                }
             }
 
-            System.out.println();
+            resultJoin = (ArrayList<String>) resultJoin.stream().distinct().collect(Collectors.toList());
         }
 
+    }
+
+    private void setupHeadersControle(BlocoControle memoria, BlocoControle disco, int indexJuncaoMemoria, int indexJuncaoDisco){
+        ArrayList<String> colunas1 = memoria.getColunas();
+        colunas1.remove(indexJuncaoMemoria);
+
+        ArrayList<String> colunas2 = disco.getColunas();
+        colunas2.remove(indexJuncaoDisco);
+
+        String result = "";
+
+        for (String s : colunas1) {
+            result += s + "|";
+        }
+
+        for (String s : colunas2) {
+            result += s + "|";
+        }
+
+        resultJoin.add(result);
     }
 
     private int hashInt(int k, int n) {

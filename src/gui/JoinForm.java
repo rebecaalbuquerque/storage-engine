@@ -4,6 +4,7 @@ import custom.Pair;
 import sgbd.HHJ;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
 import static constants.ConstantesMensagemErro.*;
@@ -32,8 +33,6 @@ public class JoinForm extends JFrame {
     private JList<String> listaColunas1;
     private JList<String> listaColunas2;
 
-    private JTextField txtTamanhoMemoriaHHJ;
-
     // ---------------------------- //
     HHJ join = new HHJ();
 
@@ -59,9 +58,19 @@ public class JoinForm extends JFrame {
         setupBtnJoin();
 
         setupComboBoxClick(cbTabela1, listaColunas1);
-        setupComboBoxClick(cbTabela2, listaColunas2);;
+        setupComboBoxClick(cbTabela2, listaColunas2);
 
         add(rootPanel);
+    }
+
+    private void setupTabelaResult(ArrayList<String> result){
+        DefaultTableModel dtm = new DefaultTableModel(result.get(0).split("\\|"), 0);
+
+        for (int i = 1; i < result.size(); i++) {
+            dtm.addRow(result.get(i).split("\\|"));
+        }
+
+        tabela.setModel(dtm);
     }
 
     private void setupTabelas(ArrayList<String> listaTabelas){
@@ -92,19 +101,19 @@ public class JoinForm extends JFrame {
 
             JOptionPane.showMessageDialog(rootPanel, COLUNA_NAO_SELECIONADA, "ERRO", JOptionPane.ERROR_MESSAGE);
 
-        /*} else if(!listaColunas1.getSelectedValue().equals(listaColunas2.getSelectedValue())){
-
-            JOptionPane.showMessageDialog(rootPanel, COLUNAS_DIFERENTES, "ERRO", JOptionPane.ERROR_MESSAGE);*/
 
         }  else {
             int id1 = Integer.parseInt(String.valueOf(cbTabela1.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
             int id2 = Integer.parseInt(String.valueOf(cbTabela2.getSelectedItem()).replaceAll(APENAS_LETRAS + "|" + CARACTER_ESPECIAL, ""));
 
-            join.init(
-                    Pair.of(1, 2), // TODO: mudar para id1 e id2
+            ArrayList<String> result = join.getJoinResult(
+                    Pair.of(id1, id2),
                     Pair.of(listaColunas1.getSelectedIndex(), listaColunas2.getSelectedIndex()),
                     Pair.of(listaColunas1.getSelectedValue().substring(0, 1), listaColunas2.getSelectedValue().substring(0, 1))
             );
+
+            System.out.println("Join finalizado");
+            setupTabelaResult(result);
 
         }
 
