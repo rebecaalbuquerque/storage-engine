@@ -36,19 +36,19 @@ public class HHJ {
         if (getIntFromBytes(controle1.getProximoBloco()) < getIntFromBytes(controle2.getProximoBloco())) {
             setupHeadersControle(controle1, controle2, indexAtributoJuncao.first, indexAtributoJuncao.second);
             tamanhoBucketsDisco = getIntFromBytes(controle1.getProximoBloco());
-            //ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.second;
+            ga.criarListaBuckets(tabelas.second, tamanhoBucketsDisco);
             gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle1.getProximoBloco()), true);
-            //gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
+            gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle1.getProximoBloco()), false);
             probe(idTabelaDisco, tamanhoBucketsDisco, indexAtributoJuncao.first, indexAtributoJuncao.second, controle1, controle2);
 
         } else {
             setupHeadersControle(controle2, controle1, indexAtributoJuncao.second, indexAtributoJuncao.first);
             tamanhoBucketsDisco = getIntFromBytes(controle2.getProximoBloco());
-            //ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
             idTabelaDisco = tabelas.first;
+            ga.criarListaBuckets(tabelas.first, tamanhoBucketsDisco);
             gerarBuckets(controle2, indexAtributoJuncao.second, tiposColunas.second, getIntFromBytes(controle2.getProximoBloco()), true);
-            //gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
+            gerarBuckets(controle1, indexAtributoJuncao.first, tiposColunas.first, getIntFromBytes(controle2.getProximoBloco()), false);
             probe(idTabelaDisco, tamanhoBucketsDisco, indexAtributoJuncao.second, indexAtributoJuncao.first, controle2, controle1);
 
         }
@@ -177,6 +177,9 @@ public class HHJ {
             int ultimoBloco = getIntFromBytes(new byte[]{ bucket[6], bucket[7], bucket[8], bucket[9] });
 
             LinkedList<BlocoDado> blocosMemoria = memoria.get(idBucket);
+
+            if( blocosMemoria == null || blocosMemoria.get(0) == null || getIntFrom3Bytes(blocosMemoria.get(0).getIdBloco()) == 6547)
+                System.out.println();
 
             for (BlocoDado bMemoria : blocosMemoria) {
 

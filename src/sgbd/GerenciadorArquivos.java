@@ -132,7 +132,7 @@ public class GerenciadorArquivos {
         int qtdTotalTuplas = 0;
 
         if (tabelaID < 1 || tabelaID > getQuantidadeArquivosSaidaTabelas()) {
-            printError("A tabela" + tabelaID + ".txt não existe.");
+            printError("A tabela" + tabelaID + ".bin não existe.");
         }
 
         File file = buscarTabela(tabelaID);
